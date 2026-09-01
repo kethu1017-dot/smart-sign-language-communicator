@@ -10,11 +10,9 @@
 
     <p>AI Based Communication System</p>
 
-    <button onclick="startCamera(); startDetection()">Start Detection</button>
+    <button onclick="startDetection()">Start Detection</button>
 
     <h2>Recognized Text</h2>
-
-    <video id="camera" width="300" autoplay></video>
 
     <div id="result">
         Waiting for sign...
@@ -23,19 +21,6 @@
     <button onclick="speakText()">🔊 Speak</button>
 
     <script>
-        function startCamera() {
-        const video = document.getElementById("camera");
-        try 
-        {
-        const stream = await navigator.mediaDevices.getUserMedia({video: true});
-        video.srcObject = stream;
-        }
-        catch (error)
-        {
-        alert("Camera permission denied");
-        }
-        }
-        
         function startDetection() {
             document.getElementById("result").innerText =
                 "Detection Started";
