@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Sign Language Communicator</title>
+</head>
+
+<body>
+
+    <h1>Smart Sign Language Communicator</h1>
+
+    <p>AI Based Communication System</p>
+
+    <button onclick="startDetection()">Start Detection</button>
+
+    <h2>Recognized Text</h2>
+
+    <div id="result">
+        Waiting for sign...
+    </div>
+
+    <button onclick="speakText()">🔊 Speak</button>
+
+    <script>
+        function startDetection() {
+            document.getElementById("result").innerText =
+                "Detection Started";
+        }
+
+        function speakText() {
+            let text = document.getElementById("result").innerText;
+
+            let speech = new SpeechSynthesisUtterance(text);
+            speechSynthesis.speak(speech);
+        }
+    </script>
+
+</body>
+</html>
