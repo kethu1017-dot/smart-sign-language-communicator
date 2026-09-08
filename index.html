@@ -2,72 +2,143 @@
 <html>
 <head>
     <title>Smart Sign Language Communicator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7ff;
+            color: #222;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            text-align: center;
+            padding: 35px 15px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .header p {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 0 15px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 18px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #4f46e5;
+        }
+
+        #camera {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 15px;
+            background: #111;
+            margin-top: 15px;
+        }
+
+        button {
+            border: none;
+            padding: 13px 22px;
+            margin: 8px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .start {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .speak {
+            background: #7c3aed;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        #result {
+            background: #f1f3ff;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            min-height: 55px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
 </head>
 
 <body>
 
-    <h1>Smart Sign Language Communicator</h1>
-
-    <p>AI Based Communication System</p>
-
-    <button onclick="startCamera(); startDetection();">
-        Start Detection
-    </button>
-
-    <br><br>
-
-    <video id="camera" width="300" autoplay playsinline></video>
-
-    <h2>Recognized Text</h2>
-
-    <div id="result">
-        Waiting for sign...
+    <div class="header">
+        <h1>🤟 Smart Sign Language Communicator</h1>
+        <p>AI Based Communication System</p>
     </div>
 
-    <br>
+    <div class="container">
 
-    <button onclick="speakText()">🔊 Speak</button>
+        <div class="card">
+            <h2>📷 Sign Detection</h2>
 
-    <script>
+            <p>Show your sign language in front of the camera.</p>
 
-        async function startCamera() {
+            <button class="start"
+                onclick="startCamera(); startDetection();">
+                ▶ Start Detection
+            </button>
 
-            const video = document.getElementById("camera");
+            <br>
 
-            try {
+            <video id="camera" autoplay playsinline></video>
+        </div>
 
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: true
-                });
+        <div class="card">
+            <h2>📝 Recognized Text</h2>
 
-                video.srcObject = stream;
+            <div id="result">
+                Waiting for sign...
+            </div>
 
-            } catch (error) {
+            <br>
 
-                alert("Camera permission denied");
+            <button class="speak" onclick="speakText()">
+                🔊 Speak
+            </button>
+        </div>
 
-            }
-        }
+    </div>
 
-        function startDetection() {
-
-            document.getElementById("result").innerText =
-                "Detection Started";
-
-        }
-
-        function speakText() {
-
-            let text = document.getElementById("result").innerText;
-
-            let speech =
-                new SpeechSynthesisUtterance(text);
-
-            speechSynthesis.speak(speech);
-
-        }
-
-    </script>
-
-</body>
-</html>
+    <div class="footer">
+       
