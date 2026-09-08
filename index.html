@@ -1,4 +1,4 @@
-<!<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>Smart Sign Language Communicator</title>
@@ -10,7 +10,13 @@
 
     <p>AI Based Communication System</p>
 
-    <button onclick="startDetection()">Start Detection</button>
+    <button onclick="startCamera(); startDetection();">
+        Start Detection
+    </button>
+
+    <br><br>
+
+    <video id="camera" width="300" autoplay playsinline></video>
 
     <h2>Recognized Text</h2>
 
@@ -18,20 +24,49 @@
         Waiting for sign...
     </div>
 
+    <br>
+
     <button onclick="speakText()">🔊 Speak</button>
 
     <script>
+
+        async function startCamera() {
+
+            const video = document.getElementById("camera");
+
+            try {
+
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: true
+                });
+
+                video.srcObject = stream;
+
+            } catch (error) {
+
+                alert("Camera permission denied");
+
+            }
+        }
+
         function startDetection() {
+
             document.getElementById("result").innerText =
                 "Detection Started";
+
         }
 
         function speakText() {
+
             let text = document.getElementById("result").innerText;
 
-            let speech = new SpeechSynthesisUtterance(text);
+            let speech =
+                new SpeechSynthesisUtterance(text);
+
             speechSynthesis.speak(speech);
+
         }
+
     </script>
 
 </body>
