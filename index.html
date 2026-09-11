@@ -204,14 +204,25 @@ function startHandDetection() {
 
   hands.onResults(onResults);
 
-  video.addEventListener("loadeddata", async function processFrame() {
+  video.onloadedmetadata = async function () {
 
-  await hands.send({image: video});
+    await video.play();
 
-  requestAnimationFrame(processFrame);
-  
-});
+    async function processFrame() {
 
+        if (video.readyState >= 2) {
+
+            await hands.send({
+                image: video
+            });
+
+        }
+
+        requestAnimationFrame(processFrame);
+    }
+
+    processFrame();
+};
 }
 
   async function switchCamera() {
