@@ -199,17 +199,15 @@ function startHandDetection() {
 
   hands.onResults(onResults);
 
-  const camera = new Camera(video, {
-    onFrame: async () => {
-      await hands.send({image: video});
-    },
-    width: 640,
-    height: 480
-  });
+  video.addEventListener("loadeddata", async function processFrame() {
 
-  camera.start();
+  await hands.send({image: video});
+
+  requestAnimationFrame(processFrame);
+  
+});
+
 }
-
 
 /* When hand is detected */
 
