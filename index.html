@@ -278,7 +278,7 @@ function onResults(results) {
     
     const waving = detectWave(landmarks);
 
-    if (waving) {
+    if (waving && fingers === 5) {
     result.innerText = "Hello";
     }
 
