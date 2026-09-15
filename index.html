@@ -275,6 +275,8 @@ function onResults(results) {
     const landmarks = results.multiHandLandmarks[0];
 
     const fingers = countFingers(landmarks);
+    
+    const waving = detectWave(landmarks);
 
     if (fingers === 5) {
       result.innerText = "Hello";
