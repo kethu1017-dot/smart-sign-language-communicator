@@ -342,6 +342,48 @@ function countFingers(lm) {
   return count;
 }
 
+/* Detect waving hand */
+
+function detectWave(landmarks) {
+
+  const wristX = landmarks[0].x;
+
+  if (detectWave.lastX === undefined) {
+    detectWave.lastX = wristX;
+    detectWave.lastDirection = 0;
+    detectWave.directionChanges = 0;
+    return false;
+  }
+
+  const movement = wristX - detectWave.lastX;
+
+  let direction = 0;
+
+  if (movement > 0.015) {
+    direction = 1;
+  } 
+  else if (movement < -0.015) {
+    direction = -1;
+  }
+
+  if (
+    direction !== 0 &&
+    detectWave.lastDirection !== 0 &&
+    direction !== detectWave.lastDirection
+  ) {
+    detectWave.directionChanges++;
+  }
+
+  detectWave.lastDirection = direction;
+  detectWave.lastX = wristX;
+
+  if (detectWave.directionChanges >= 3) {
+    detectWave.directionChanges = 0;
+    return true;
+  }
+
+  return false;
+}
 
 /* Text to Speech */
 
