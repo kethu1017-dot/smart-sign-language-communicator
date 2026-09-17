@@ -413,65 +413,59 @@ function detectWave(landmarks) {
   return false;
 }
 
-  /* Detect Yes gesture - prototype */
+/* Detect Yes gesture */
 
 function detectYes(landmarks) {
 
-  const thumbTip = landmarks[4];
-  const indexTip = landmarks[8];
-  const middleTip = landmarks[12];
-  const ringTip = landmarks[16];
-  const pinkyTip = landmarks[20];
+    const thumbTip = landmarks[4];
+    const thumbBase = landmarks[2];
 
-  const thumbUp =
-    thumbTip.y < landmarks[3].y;
+    const indexTip = landmarks[8];
+    const middleTip = landmarks[12];
+    const ringTip = landmarks[16];
+    const pinkyTip = landmarks[20];
 
-  const otherFingersClosed =
-    indexTip.y > landmarks[6].y &&
-    middleTip.y > landmarks[10].y &&
-    ringTip.y > landmarks[14].y &&
-    pinkyTip.y > landmarks[18].y;
+    const indexBase = landmarks[6];
+    const middleBase = landmarks[10];
+    const ringBase = landmarks[14];
+    const pinkyBase = landmarks[18];
 
-  return thumbUp && otherFingersClosed;
+    const thumbUp = thumbTip.y < thumbBase.y;
+
+    const fingersClosed =
+        indexTip.y > indexBase.y &&
+        middleTip.y > middleBase.y &&
+        ringTip.y > ringBase.y &&
+        pinkyTip.y > pinkyBase.y;
+
+    return thumbUp && fingersClosed;
 }
 
-  /* Detect No gesture - prototype */
+
+/* Detect No gesture */
+
 function detectNo(landmarks) {
-  const thumb = landmarks[4];
-  const index = landmarks[8];
-  const middle = landmarks[12];
 
-  const indexDistance = Math.hypot(
-    index.x - thumb.x,
-    index.y - thumb.y
-  );
+    const indexTip = landmarks[8];
+    const middleTip = landmarks[12];
+    const ringTip = landmarks[16];
+    const pinkyTip = landmarks[20];
 
-  const middleDistance = Math.hypot(
-    middle.x - thumb.x,
-    middle.y - thumb.y
-  );
+    const indexBase = landmarks[5];
+    const middleBase = landmarks[9];
+    const ringBase = landmarks[13];
+    const pinkyBase = landmarks[17];
 
-  const fingersNearThumb =
-    indexDistance < 0.10 &&
-    middleDistance < 0.10;
+    const indexOpen = indexTip.y < indexBase.y;
+    const middleOpen = middleTip.y < middleBase.y;
 
-  return fingersNearThumb;
-}
+    const ringClosed = ringTip.y > ringBase.y;
+    const pinkyClosed = pinkyTip.y > pinkyBase.y;
 
-function processVideo() {
-
-  const videoFile = document.getElementById("videoUpload").files[0];
-
-  if (!videoFile) {
-    alert("Please upload a sign language video first.");
-    return;
-  }
-
-  result.innerText = "Processing video...";
-
-  setTimeout(() => {
-    result.innerText = "Video processed successfully";
-  }, 1500);
+    return indexOpen &&
+           middleOpen &&
+           ringClosed &&
+           pinkyClosed;
 }
 
 /* Text to Speech */
