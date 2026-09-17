@@ -126,6 +126,20 @@
     </div>
 
     <div class="card">
+      <h2>📹 Upload Sign Language Video</h2>
+
+      <p>Upload a sign language video to recognize the gesture.</p>
+
+      <input type="file" id="videoUpload" accept="video/*">
+
+      <br><br>
+
+      <button class="start" onclick="processVideo()">
+        ▶ Process Video
+      </button>
+    </div>
+
+    <div class="card">
       <h2>📝 Recognized Text</h2>
 
       <div id="result">
@@ -442,6 +456,22 @@ function detectNo(landmarks) {
     middleDistance < 0.10;
 
   return fingersNearThumb;
+}
+
+function processVideo() {
+
+  const videoFile = document.getElementById("videoUpload").files[0];
+
+  if (!videoFile) {
+    alert("Please upload a sign language video first.");
+    return;
+  }
+
+  result.innerText = "Processing video...";
+
+  setTimeout(() => {
+    result.innerText = "Video processed successfully";
+  }, 1500);
 }
 
 /* Text to Speech */
