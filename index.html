@@ -472,6 +472,22 @@ function detectNo(landmarks) {
            pinkyClosed;
 }
 
+function processVideo() {
+
+  const videoFile = document.getElementById("videoUpload").files[0];
+  const uploadedVideo = document.getElementById("uploadedVideo");
+
+  if (!videoFile) {
+    alert("Please upload a sign language video first.");
+    return;
+  }
+
+  uploadedVideo.src = URL.createObjectURL(videoFile);
+  uploadedVideo.style.display = "block";
+
+  result.innerText = "Video ready for processing";
+}
+
 /* Text to Speech */
 
 function speakText() {
