@@ -485,9 +485,25 @@ function processVideo() {
   uploadedVideo.src = URL.createObjectURL(videoFile);
   uploadedVideo.style.display = "block";
 
-  result.innerText = "Video ready for processing";
-}
+  result.innerText = "Processing video...";
 
+  uploadedVideo.play();
+
+  function processFrame() {
+    if (!uploadedVideo.paused && !uploadedVideo.ended) {
+
+      hands.send({ image: uploadedVideo });
+
+      requestAnimationFrame(processFrame);
+
+    } else {
+      result.innerText = "Video processing completed";
+    }
+  }
+
+  processFrame();
+}
+  
 /* Text to Speech */
 
 function speakText() {
