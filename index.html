@@ -142,6 +142,27 @@
         ▶ Process Video
       </button>
     </div>
+  
+    <div class="card">
+      <h2>✍️ Text to Sign Language</h2>
+
+      <p>Type a word to see the sign language gesture.</p>
+
+      <input
+      type="text"
+      id="textInput"
+      placeholder="Type a word..."
+      style="width:100%; padding:12px; border-radius:10px; border:1px solid #ccc;"
+      >
+
+      <button class="start" onclick="showSign()">
+       🤟 Show Sign
+      </button>
+
+      <div id="signOutput" style="margin-top:15px; font-size:22px;">
+       Sign will appear here
+      </div>
+  </div>
 
     <div class="card">
       <h2>📝 Recognized Text</h2>
