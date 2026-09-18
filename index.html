@@ -530,6 +530,33 @@ function processVideo() {
   };
 }
 
+function showSign() {
+  const text = document.getElementById("textInput").value.trim();
+  const signOutput = document.getElementById("signOutput");
+
+  if (text === "") {
+    signOutput.innerText = "Please type a word.";
+    return;
+  }
+
+  const word = text.toLowerCase();
+
+  if (word === "hello") {
+    signOutput.innerText = "👋 Hello";
+  }
+  else if (word === "yes") {
+    signOutput.innerText = "👍 Yes";
+  }
+  else if (word === "no") {
+    signOutput.innerText = "✋ No";
+  }
+  else if (word === "thank you") {
+    signOutput.innerText = "🤟 Thank You";
+  }
+  else {
+    signOutput.innerText = "Sign not available for this word.";
+  }
+}
   
 /* Text to Speech */
 
