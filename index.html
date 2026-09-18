@@ -487,22 +487,28 @@ function processVideo() {
 
   result.innerText = "Processing video...";
 
-  uploadedVideo.play();
+  uploadedVideo.onloadeddata = async function () {
 
-  function processFrame() {
-    if (!uploadedVideo.paused && !uploadedVideo.ended) {
+    await uploadedVideo.play();
 
-      hands.send({ image: uploadedVideo });
+    async function processFrame() {
 
-      requestAnimationFrame(processFrame);
+      if (uploadedVideo.ended) {
+        result.innerText = "Video processing completed";
+        return;
+      }
 
-    } else {
-      result.innerText = "Video processing completed";
+      await hands.send({
+        image: uploadedVideo
+      });
+
+      setTimeout(processFrame, 100);
     }
-  }
 
-  processFrame();
+    processFrame();
+  };
 }
+
   
 /* Text to Speech */
 
