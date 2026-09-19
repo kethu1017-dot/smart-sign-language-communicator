@@ -61,6 +61,8 @@
 
       <video id="video" autoplay playsinline></video>
 
+      <button id="switchCamera">🔄 Switch Camera</button>
+
       <p id="status">Starting camera...</p>
 
     </div>
@@ -111,16 +113,45 @@
     });
 
     // Camera
-    const camera = new Camera(video, {
-      onFrame: async () => {
-        await hands.send({image: video});
-      },
-      width: 640,
-      height: 480
+     let currentCamera = "user";
+     let stream;
+
+    async function startCamera() {
+
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+      facingMode: currentCamera
+    },
+      audio: false
     });
 
-    camera.start();
+    video.srcObject = stream;
 
+    video.onloadedmetadata = () => {
+    video.play();
+    processFrame();
+  };
+}
+
+async function processFrame() {
+  await hands.send({ image: video });
+  requestAnimationFrame(processFrame);
+}
+
+document.getElementById("switchCamera").onclick = () => {
+
+  currentCamera =
+    currentCamera === "user" ? "environment" : "user";
+
+  startCamera();
+};
+
+startCamera();
+    
   </script>
 
 </body>
