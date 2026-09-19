@@ -321,8 +321,6 @@ function onResults(results) {
 
     const noSign = detectNo(landmarks);
 
-    const sorrySign = detectSorry(landmarks);
-
     if (waving && fingers === 5) {
     result.innerText = "Hello 🫡";
     }
@@ -337,10 +335,6 @@ function onResults(results) {
 
     else if (noSign) {
       result.innerText = "No";
-    }
-
-    else if (sorrySign) {
-      result.innerText = "Sorry";
     }
 
     else if (fingers === 0) {
