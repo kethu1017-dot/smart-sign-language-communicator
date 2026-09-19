@@ -321,6 +321,8 @@ function onResults(results) {
 
     const noSign = detectNo(landmarks);
 
+    const sorrySign = detectSorry(landmarks);
+
     if (waving && fingers === 5) {
     result.innerText = "Hello 🫡";
     }
@@ -335,6 +337,10 @@ function onResults(results) {
 
     else if (noSign) {
       result.innerText = "No";
+    }
+
+    else if (sorrySign) {
+      result.innerText = "Sorry";
     }
 
     else if (fingers === 0) {
@@ -495,6 +501,36 @@ function detectNo(landmarks) {
            middleOpen &&
            ringClosed &&
            pinkyClosed;
+}
+
+/* Detect Sorry gesture - prototype */
+function detectSorry(landmarks) {
+  const x = landmarks[9].x;
+  const y = landmarks[9].y;
+
+  if (detectSorry.lastX === undefined) {
+    detectSorry.lastX = x;
+    detectSorry.lastY = y;
+    detectSorry.moves = 0;
+    return false;
+  }
+
+  const dx = x - detectSorry.lastX;
+  const dy = y - detectSorry.lastY;
+
+  if (Math.abs(dx) > 0.02 || Math.abs(dy) > 0.02) {
+    detectSorry.moves++;
+  }
+
+  detectSorry.lastX = x;
+  detectSorry.lastY = y;
+
+  if (detectSorry.moves >= 12) {
+    detectSorry.moves = 0;
+    return true;
+  }
+
+  return false;
 }
 
 function processVideo() {
