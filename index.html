@@ -4,31 +4,18 @@
   <title>Smart Sign Language Communicator</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
       background: #f4f7ff;
       color: #222;
+      font-family: Arial;
+      text-align: center;
+      margin: 0;
     }
 
     .header {
       background: linear-gradient(135deg, #4f46e5, #7c3aed);
       color: white;
-      text-align: center;
       padding: 30px 15px;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-
-    .header p {
-      margin-top: 8px;
     }
 
     .container {
@@ -40,576 +27,101 @@
     .card {
       background: white;
       padding: 25px;
-      margin-bottom: 20px;
       border-radius: 18px;
       box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-      text-align: center;
     }
 
-    .card h2 {
-      color: #4f46e5;
-    }
-
-    button {
-      border: none;
-      padding: 13px 22px;
-      margin: 8px;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .start {
-      background: #4f46e5;
-      color: white;
-    }
-
-    .speak {
-      background: #7c3aed;
-      color: white;
-    }
-
-    #camera {
+    video {
       width: 100%;
       max-width: 500px;
       border-radius: 15px;
-      background: #111;
       margin-top: 15px;
     }
 
-    #result {
-      background: #f1f3ff;
-      padding: 18px;
-      border-radius: 12px;
-      font-size: 18px;
-      min-height: 55px;
-    }
-
-    .status {
-      margin-top: 10px;
-      font-size: 14px;
+    #status {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 20px;
     }
   </style>
-
-  <!-- MediaPipe Hands -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 </head>
 
 <body>
 
   <div class="header">
-    <h1>🤟 Smart Sign Language Communicator</h1>
-    <p>AI Based Communication System</p>
+    <h1>Smart Sign Language Communicator</h1>
+    <p>Hand Detection Test</p>
   </div>
 
   <div class="container">
 
     <div class="card">
-      <h2>📷 Sign Detection</h2>
 
-      <p>Show your hand sign in front of the camera.</p>
+      <h2>✋ Hand Detection</h2>
 
-      <button class="start" onclick="startDetection()">
-        ▶ Start Detection
-      </button>
-      
-      <button class="start" onclick="switchCamera()">
-        🔄 Switch Camera
-      </button>
+      <video id="video" autoplay playsinline></video>
 
-      <video id="camera" autoplay playsinline></video>
+      <p id="status">Starting camera...</p>
 
-      <p id="status">Show your hand in front of camera</p>
-    </div>
-
-    <div class="card">
-      <h2>📹 Upload Sign Language Video</h2>
-
-      <p>Upload a sign language video to recognize the gesture.</p>
-
-      <input type="file" id="videoUpload" accept="video/*">
-
-      <video id="uploadedVideo" controls width="100%" style="margin-top:15px; border-radius:15px; display:none;">
-        
-      </video>
-
-      <br><br>
-
-      <button class="start" onclick="processVideo()">
-        ▶ Process Video
-      </button>
-    </div>
-  
-    <div class="card">
-      <h2>✍️ Text to Sign Language</h2>
-
-      <p>Type a word to see the sign language gesture.</p>
-
-      <input
-      type="text"
-      id="textInput"
-      placeholder="Type a word..."
-      style="width:100%; padding:12px; border-radius:10px; border:1px solid #ccc;"
-      >
-
-      <button class="start" onclick="showSign()">
-       🤟 Show Sign
-      </button>
-
-      <div id="signOutput" style="margin-top:15px; font-size:22px;">
-       Sign will appear here
-      </div>
-  </div>
-
-    <div class="card">
-      <h2>📝 Recognized Text</h2>
-
-      <div id="result">
-        Waiting for sign...
-      </div>
-
-      <br>
-
-      <button class="speak" onclick="speakText()">
-        🔊 Speak
-      </button>
     </div>
 
   </div>
 
-<script>
+  <!-- MediaPipe Hands -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
-const video = document.getElementById("camera");
-const result = document.getElementById("result");
-const statusText = document.getElementById("status");
-  
-let cameraStarted = false;
-let facingMode = "user";
+  <!-- Camera Utils -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
-/* Start Camera + AI Hand Detection */
+  <script>
 
-async function startDetection() {
+    const video = document.getElementById("video");
+    const statusText = document.getElementById("status");
 
-  if (cameraStarted) {
-    result.innerText = "Detection already started";
-    return;
-  }
-
-  try {
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-  facingMode: facingMode
+    // Hand Detection
+    const hands = new Hands({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
       }
     });
 
-    video.srcObject = stream;
-
-    statusText.innerText = "Camera started - Show your hand";
-
-    cameraStarted = true;
-
-    startHandDetection();
-
-  } catch (error) {
-
-    statusText.innerText = "Camera permission denied";
-
-    alert("Please allow camera permission in your browser.");
-
-  }
-}
-
-
-/* MediaPipe Hands */
-
-function startHandDetection() {
-
-  const hands = new Hands({
-    locateFile: (file) => {
-      return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-    }
-  });
-
-  hands.setOptions({
-    maxNumHands: 1,
-    modelComplexity: 1,
-    minDetectionConfidence: 0.6,
-    minTrackingConfidence: 0.6
-  });
-
-  hands.onResults(onResults);
-
-  video.onloadedmetadata = async function () {
-
-    await video.play();
-
-    async function processFrame() {
-
-        if (video.readyState >= 2) {
-
-            await hands.send({
-                image: video
-            });
-
-        }
-
-        requestAnimationFrame(processFrame);
-    }
-
-    processFrame();
-};
-}
-
-  async function switchCamera() {
-
-  if (!cameraStarted) {
-    alert("Please start detection first.");
-    return;
-  }
-
-  if (video.srcObject) {
-    video.srcObject.getTracks().forEach(track => track.stop());
-  }
-
-  facingMode =
-    facingMode === "environment"
-      ? "user"
-      : "environment";
-
-  try {
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: facingMode
-      }
+    hands.setOptions({
+      maxNumHands: 2,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
     });
 
-    video.srcObject = stream;
+    // Results
+    hands.onResults(function(results) {
 
-    statusText.innerText =
-      facingMode === "environment"
-        ? "Back camera"
-        : "Front camera";
+      if (
+        results.multiHandLandmarks &&
+        results.multiHandLandmarks.length > 0
+      ) {
 
-  } catch (error) {
+        statusText.innerText = "✋ Hand detected";
 
-    alert("Unable to switch camera.");
+      } else {
 
-  }
-  }
+        statusText.innerText = "Show your hand in front of camera";
 
-/* When hand is detected */
-
-function onResults(results) {
-
-  if (results.multiHandLandmarks &&
-      results.multiHandLandmarks.length > 0) {
-
-    statusText.innerText = "✋ Hand detected";
-
-    const landmarks = results.multiHandLandmarks[0];
-
-    const fingers = countFingers(landmarks);
-    
-    const waving = detectWave(landmarks);
-
-    const yesSign = detectYes(landmarks);
-
-    const noSign = detectNo(landmarks);
-
-    if (waving && fingers === 5) {
-    result.innerText = "Hello 🫡";
-    }
-
-    else if (fingers === 5) {
-      result.innerText = "Bye 👋";
-    }
-
-    else if (yesSign) {
-      result.innerText = "Yes";
-    }
-
-    else if (noSign) {
-      result.innerText = "No";
-    }
-
-    else if (fingers === 0) {
-      result.innerText = "Fist";
-    }
-
-    else if (fingers === 1) {
-      result.innerText = "One Finger";
-    }
-
-    else if (fingers === 2) {
-      result.innerText = "Thank you";
-    }
-
-    else if (fingers === 3) {
-      result.innerText = "Three Fingers";
-    }
-
-    else if (fingers === 4) {
-      result.innerText = "Four Fingers";
-    }
-
-  } else {
-
-    statusText.innerText = "Show your hand in front of camera";
-
-  }
-}
-
-
-/* Count fingers */
-
-function countFingers(lm) {
-
-  let count = 0;
-
-  /* Index finger */
-  if (lm[8].y < lm[6].y) {
-    count++;
-  }
-
-  /* Middle finger */
-  if (lm[12].y < lm[10].y) {
-    count++;
-  }
-
-  /* Ring finger */
-  if (lm[16].y < lm[14].y) {
-    count++;
-  }
-
-  /* Little finger */
-  if (lm[20].y < lm[18].y) {
-    count++;
-  }
-
-  /* Thumb */
-  if (Math.abs(lm[4].x - lm[5].x) > 0.12) {
-    count++;
-  }
-
-  return count;
-}
-
-/* Detect waving hand */
-
-function detectWave(landmarks) {
-
-  const wristX = landmarks[0].x;
-
-  if (detectWave.lastX === undefined) {
-    detectWave.lastX = wristX;
-    detectWave.lastDirection = 0;
-    detectWave.directionChanges = 0;
-    return false;
-  }
-
-  const movement = wristX - detectWave.lastX;
-
-  let direction = 0;
-
-  if (movement > 0.015) {
-    direction = 1;
-  } 
-  else if (movement < -0.015) {
-    direction = -1;
-  }
-
-  if (
-    direction !== 0 &&
-    detectWave.lastDirection !== 0 &&
-    direction !== detectWave.lastDirection
-  ) {
-    detectWave.directionChanges++;
-  }
-
-  detectWave.lastDirection = direction;
-  detectWave.lastX = wristX;
-
-  if (detectWave.directionChanges >= 3) {
-    detectWave.directionChanges = 0;
-    return true;
-  }
-
-  return false;
-}
-
-/* Detect Yes gesture */
-
-function detectYes(landmarks) {
-
-    const thumbTip = landmarks[4];
-    const thumbBase = landmarks[2];
-
-    const indexTip = landmarks[8];
-    const middleTip = landmarks[12];
-    const ringTip = landmarks[16];
-    const pinkyTip = landmarks[20];
-
-    const indexBase = landmarks[6];
-    const middleBase = landmarks[10];
-    const ringBase = landmarks[14];
-    const pinkyBase = landmarks[18];
-
-    const thumbUp = thumbTip.y < thumbBase.y;
-
-    const fingersClosed =
-        indexTip.y > indexBase.y &&
-        middleTip.y > middleBase.y &&
-        ringTip.y > ringBase.y &&
-        pinkyTip.y > pinkyBase.y;
-
-    return thumbUp && fingersClosed;
-}
-
-
-/* Detect No gesture */
-
-function detectNo(landmarks) {
-
-    const indexTip = landmarks[8];
-    const middleTip = landmarks[12];
-    const ringTip = landmarks[16];
-    const pinkyTip = landmarks[20];
-
-    const indexBase = landmarks[5];
-    const middleBase = landmarks[9];
-    const ringBase = landmarks[13];
-    const pinkyBase = landmarks[17];
-
-    const indexOpen = indexTip.y < indexBase.y;
-    const middleOpen = middleTip.y < middleBase.y;
-
-    const ringClosed = ringTip.y > ringBase.y;
-    const pinkyClosed = pinkyTip.y > pinkyBase.y;
-
-    return indexOpen &&
-           middleOpen &&
-           ringClosed &&
-           pinkyClosed;
-}
-
-/* Detect Sorry gesture - prototype */
-function detectSorry(landmarks) {
-  const x = landmarks[9].x;
-  const y = landmarks[9].y;
-
-  if (detectSorry.lastX === undefined) {
-    detectSorry.lastX = x;
-    detectSorry.lastY = y;
-    detectSorry.moves = 0;
-    return false;
-  }
-
-  const dx = x - detectSorry.lastX;
-  const dy = y - detectSorry.lastY;
-
-  if (Math.abs(dx) > 0.02 || Math.abs(dy) > 0.02) {
-    detectSorry.moves++;
-  }
-
-  detectSorry.lastX = x;
-  detectSorry.lastY = y;
-
-  if (detectSorry.moves >= 12) {
-    detectSorry.moves = 0;
-    return true;
-  }
-
-  return false;
-}
-
-function processVideo() {
-
-  const videoFile = document.getElementById("videoUpload").files[0];
-  const uploadedVideo = document.getElementById("uploadedVideo");
-
-  if (!videoFile) {
-    alert("Please upload a sign language video first.");
-    return;
-  }
-
-  uploadedVideo.src = URL.createObjectURL(videoFile);
-  uploadedVideo.style.display = "block";
-
-  result.innerText = "Processing video...";
-
-  uploadedVideo.onloadeddata = async function () {
-
-    await uploadedVideo.play();
-
-    async function processFrame() {
-
-      if (uploadedVideo.ended) {
-        result.innerText = "Video processing completed";
-        return;
       }
 
-      await hands.send({
-        image: uploadedVideo
-      });
+    });
 
-      setTimeout(processFrame, 100);
-    }
+    // Camera
+    const camera = new Camera(video, {
+      onFrame: async () => {
+        await hands.send({image: video});
+      },
+      width: 640,
+      height: 480
+    });
 
-    processFrame();
-  };
-}
+    camera.start();
 
-function showSign() {
-  const text = document.getElementById("textInput").value.trim();
-  const signOutput = document.getElementById("signOutput");
-
-  if (text === "") {
-    signOutput.innerText = "Please type a word.";
-    return;
-  }
-
-  const word = text.toLowerCase();
-
-  if (word === "hello") {
-    signOutput.innerText = "🫡 Hello";
-  }
-  else if (word === "yes") {
-    signOutput.innerText = "👍 Yes";
-  }
-  else if (word === "no") {
-    signOutput.innerText = "✋ No";
-  }
-  else if (word === "thank you") {
-    signOutput.innerText = "🤟 Thank You";
-  }
-  else {
-    signOutput.innerText = "Sign not available for this word.";
-  }
-}
-  
-/* Text to Speech */
-
-function speakText() {
-
-  const text = result.innerText;
-
-  if (text === "Waiting for sign...") {
-    return;
-  }
-
-  const speech = new SpeechSynthesisUtterance(text);
-
-  speech.lang = "en-US";
-
-  speechSynthesis.speak(speech);
-}
-
-</script>
+  </script>
 
 </body>
 </html>
