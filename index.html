@@ -69,33 +69,84 @@
 
   </div>
 
-  <script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
-    const video = document.getElementById("camera");
-    const status = document.getElementById("status");
+<script>
 
-    async function startCamera() {
+const video = document.getElementById("camera");
+const status = document.getElementById("status");
 
-      try {
+let detecting = false;
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: false
-        });
+const hands = new Hands({
+  locateFile: (file) => {
+    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+  }
+});
 
-        video.srcObject = stream;
+hands.setOptions({
+  maxNumHands: 1,
+  modelComplexity: 1,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
+});
 
-        status.innerText = "Camera working ✅";
+hands.onResults((results) => {
 
-      } catch (error) {
+  if (
+    results.multiHandLandmarks &&
+    results.multiHandLandmarks.length > 0
+  ) {
 
-        status.innerText = "Camera permission/error ❌";
+    status.innerText = "Hand detected 🖐️";
 
-        console.log(error);
-      }
+  } else {
+
+    status.innerText = "No hand detected";
+
+  }
+
+});
+
+async function detectHands() {
+
+  if (video.readyState >= 2) {
+    await hands.send({
+      image: video
+    });
+  }
+
+  requestAnimationFrame(detectHands);
+}
+
+async function startCamera() {
+
+  try {
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
+    });
+
+    video.srcObject = stream;
+
+    status.innerText = "Camera working ✅";
+
+    if (!detecting) {
+      detecting = true;
+      detectHands();
     }
 
-  </script>
+  } catch (error) {
 
+    status.innerText = "Camera permission/error ❌";
+
+    console.log(error);
+
+  }
+
+}
+
+</script>
 </body>
 </html>
