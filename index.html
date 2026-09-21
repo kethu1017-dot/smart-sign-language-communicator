@@ -59,12 +59,11 @@
 
     <h2>Camera</h2>
 
-    <video id="camera" autoplay playsinline></video>
-
+    <video id="camera" autoplay playsinline style="width:100%; max-width:600px; height:400px; background:#000; border-radius:12px; object-fit:cover;"></video>
     <br>
 
     <button onclick="startCamera()">Start Camera</button>
-
+    <button onclick="switchCamera()">Switch Front / Back</button>   
     <p id="status">Camera not started</p>
 
   </div>
@@ -77,9 +76,9 @@
     async function startCamera() {
 
       try {
-
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
+         video: {
+              facingMode: currentCamera
+         },
           audio: false
         });
 
@@ -94,6 +93,35 @@
         console.log(error);
       }
     }
+
+    async function startCamera() {
+
+  try {
+
+    status.innerText = "Starting camera...";
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: currentCamera
+      },
+      audio: false
+    });
+
+    video.srcObject = stream;
+
+    video.style.display = "block";
+
+    await video.play();
+
+    status.innerText = "Camera working ✅";
+
+  } catch (error) {
+
+    console.log(error);
+
+    status.innerText = "Camera Error ❌ " + error.message;
+
+  }}
 
   </script>
 
