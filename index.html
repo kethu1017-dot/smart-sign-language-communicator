@@ -5,153 +5,96 @@
 
   <style>
     body {
-      background: #f4f7ff;
-      color: #222;
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       text-align: center;
+      background: #f4f7ff;
       margin: 0;
+      padding: 20px;
     }
 
-    .header {
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: white;
-      padding: 30px 15px;
-    }
-
-    .container {
-      max-width: 700px;
-      margin: 25px auto;
-      padding: 15px;
+    h1 {
+      color: #4f46e5;
     }
 
     .card {
       background: white;
+      max-width: 700px;
+      margin: 30px auto;
       padding: 25px;
       border-radius: 18px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 
     video {
       width: 100%;
       max-width: 500px;
       border-radius: 15px;
-      margin-top: 15px;
+      background: black;
+    }
+
+    button {
+      margin: 10px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      background: #4f46e5;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
     }
 
     #status {
-      font-size: 20px;
+      font-size: 18px;
+      margin-top: 15px;
       font-weight: bold;
-      margin-top: 20px;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="header">
-    <h1>Smart Sign Language Communicator</h1>
-    <p>Hand Detection Test</p>
-  </div>
+  <h1>Smart Sign Language Communicator</h1>
 
-  <div class="container">
+  <div class="card">
 
-    <div class="card">
+    <h2>Camera</h2>
 
-      <h2>✋ Hand Detection</h2>
+    <video id="camera" autoplay playsinline></video>
 
-      <video id="video" autoplay playsinline></video>
+    <br>
 
-      <button id="switchCamera">🔄 Switch Camera</button>
+    <button onclick="startCamera()">Start Camera</button>
 
-      <p id="status">Starting camera...</p>
-
-    </div>
+    <p id="status">Camera not started</p>
 
   </div>
-
-  <!-- MediaPipe Hands -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-
-  <!-- Camera Utils -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
   <script>
 
-    const video = document.getElementById("video");
-    const statusText = document.getElementById("status");
-
-    // Hand Detection
-    const hands = new Hands({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-      }
-    });
-
-    hands.setOptions({
-      maxNumHands: 2,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
-    });
-
-    // Results
-    hands.onResults(function(results) {
-
-      if (
-        results.multiHandLandmarks &&
-        results.multiHandLandmarks.length > 0
-      ) {
-
-        statusText.innerText = "✋ Hand detected";
-
-      } else {
-
-        statusText.innerText = "Show your hand in front of camera";
-
-      }
-
-    });
-
-    // Camera
-     let currentCamera = "user";
-     let stream;
+    const video = document.getElementById("camera");
+    const status = document.getElementById("status");
 
     async function startCamera() {
 
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
+      try {
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
+
+        video.srcObject = stream;
+
+        status.innerText = "Camera working ✅";
+
+      } catch (error) {
+
+        status.innerText = "Camera permission/error ❌";
+
+        console.log(error);
+      }
     }
 
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-      facingMode: currentCamera
-    },
-      audio: false
-    });
-
-    video.srcObject = stream;
-
-    video.onloadedmetadata = () => {
-    video.play();
-    processFrame();
-  };
-}
-
-async function processFrame() {
-  await hands.send({ image: video });
-  requestAnimationFrame(processFrame);
-}
-
-document.getElementById("switchCamera").onclick = () => {
-
-  currentCamera =
-    currentCamera === "user" ? "environment" : "user";
-
-  startCamera();
-};
-
-startCamera();
-    
   </script>
 
 </body>
