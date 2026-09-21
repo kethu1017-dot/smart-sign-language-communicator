@@ -6,6 +6,9 @@
 
   <title>Smart Sign Language Communicator</title>
 
+  <!-- MediaPipe Hands -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -53,11 +56,8 @@
       cursor: pointer;
     }
 
-    button:hover {
-      background: #3730a3;
-    }
-
-    #status {
+    #status,
+    #handStatus {
       margin-top: 15px;
       font-size: 18px;
       font-weight: bold;
@@ -71,7 +71,7 @@
 
   <div class="card">
 
-    <h2>Camera Test</h2>
+    <h2>Camera & Hand Detection</h2>
 
     <video id="camera" autoplay playsinline></video>
 
@@ -91,18 +91,26 @@
 
     <p id="status">Camera not started</p>
 
+    <p id="handStatus">✋ Hand not detected</p>
+
   </div>
 
 
   <script>
 
     let stream = null;
+    let hands = null;
+    let detecting = false;
 
     const video = document.getElementById("camera");
     const statusText = document.getElementById("status");
+    const handStatus = document.getElementById("handStatus");
 
 
+    // =========================
     // FRONT CAMERA
+    // =========================
+
     async function startFrontCamera() {
 
       stopCamera();
@@ -118,7 +126,10 @@
 
         video.srcObject = stream;
 
-        statusText.innerText = "✅ Front Camera Working";
+        statusText.innerText =
+          "✅ Front Camera Working";
+
+        startHandDetection();
 
       } catch (error) {
 
@@ -130,7 +141,10 @@
     }
 
 
+    // =========================
     // BACK CAMERA
+    // =========================
+
     async function startBackCamera() {
 
       stopCamera();
@@ -148,13 +162,15 @@
 
         video.srcObject = stream;
 
-        statusText.innerText = "✅ Back Camera Working";
+        statusText.innerText =
+          "✅ Back Camera Working";
+
+        startHandDetection();
 
       } catch (error) {
 
         console.error(error);
 
-        // Fallback method
         try {
 
           stream = await navigator.mediaDevices.getUserMedia({
@@ -169,6 +185,8 @@
           statusText.innerText =
             "✅ Back Camera Working";
 
+          startHandDetection();
+
         } catch (error2) {
 
           console.error(error2);
@@ -180,8 +198,13 @@
     }
 
 
+    // =========================
     // STOP CAMERA
+    // =========================
+
     function stopCamera() {
+
+      detecting = false;
 
       if (stream) {
 
@@ -194,7 +217,92 @@
 
       video.srcObject = null;
 
-      statusText.innerText = "Camera stopped";
+      statusText.innerText =
+        "Camera stopped";
+
+      handStatus.innerText =
+        "✋ Hand not detected";
+    }
+
+
+    // =========================
+    // HAND DETECTION
+    // =========================
+
+    function startHandDetection() {
+
+      if (!hands) {
+
+        hands = new Hands({
+          locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+          }
+        });
+
+        hands.setOptions({
+
+          maxNumHands: 1,
+
+          modelComplexity: 1,
+
+          minDetectionConfidence: 0.6,
+
+          minTrackingConfidence: 0.6
+
+        });
+
+
+        hands.onResults((results) => {
+
+          if (
+            results.multiHandLandmarks &&
+            results.multiHandLandmarks.length > 0
+          ) {
+
+            handStatus.innerText =
+              "✋ Hand Detected";
+
+          } else {
+
+            handStatus.innerText =
+              "✋ Hand not detected";
+          }
+
+        });
+      }
+
+
+      if (detecting) {
+        return;
+      }
+
+      detecting = true;
+
+      detectHand();
+    }
+
+
+    // =========================
+    // SEND CAMERA IMAGE
+    // =========================
+
+    async function detectHand() {
+
+      if (!detecting) {
+        return;
+      }
+
+      if (
+        video.readyState >= 2 &&
+        video.videoWidth > 0
+      ) {
+
+        await hands.send({
+          image: video
+        });
+      }
+
+      requestAnimationFrame(detectHand);
     }
 
   </script>
