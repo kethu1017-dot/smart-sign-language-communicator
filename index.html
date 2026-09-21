@@ -52,10 +52,6 @@
       cursor: pointer;
     }
 
-    button:hover {
-      background: #3730a3;
-    }
-
     #status {
       font-size: 18px;
       font-weight: bold;
@@ -77,9 +73,7 @@
     }
   </style>
 
-  <!-- MediaPipe Hands -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-
 </head>
 
 <body>
@@ -137,363 +131,413 @@
 
 <script>
 
-  let stream = null;
-  let hands = null;
-  let detecting = false;
+let stream = null;
+let hands = null;
+let detecting = false;
 
-  let lastResult = "";
+let lastResult = "";
 
-
-  const video = document.getElementById("camera");
-  const statusText = document.getElementById("status");
-  const handStatus = document.getElementById("handStatus");
-  const resultText = document.getElementById("resultText");
-
-
-  // =========================
-  // FRONT CAMERA
-  // =========================
-
-  async function startFrontCamera() {
-
-    stopCamera();
-
-    try {
-
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: "user"
-        },
-        audio: false
-      });
-
-      video.srcObject = stream;
-
-      statusText.innerText = "✅ Front Camera Working";
-
-      startHandDetection();
-
-    } catch (error) {
-
-      console.log(error);
-
-      statusText.innerText =
-        "❌ Front Camera Error: " + error.message;
-
-    }
-  }
+const video = document.getElementById("camera");
+const statusText = document.getElementById("status");
+const handStatus = document.getElementById("handStatus");
+const resultText = document.getElementById("resultText");
 
 
-  // =========================
-  // BACK CAMERA
-  // =========================
+// =========================
+// FRONT CAMERA
+// =========================
 
-  async function startBackCamera() {
+async function startFrontCamera() {
 
-    stopCamera();
+  stopCamera();
 
-    try {
+  try {
 
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: {
-            exact: "environment"
-          }
-        },
-        audio: false
-      });
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: "user"
+      },
+      audio: false
+    });
 
-      video.srcObject = stream;
-
-      statusText.innerText = "✅ Back Camera Working";
-
-      startHandDetection();
-
-    } catch (error) {
-
-      console.log(error);
-
-      // Fallback
-
-      try {
-
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: "environment"
-          },
-          audio: false
-        });
-
-        video.srcObject = stream;
-
-        statusText.innerText =
-          "✅ Back Camera Working";
-
-        startHandDetection();
-
-      } catch (error2) {
-
-        statusText.innerText =
-          "❌ Back Camera Error";
-
-      }
-
-    }
-  }
-
-
-  // =========================
-  // STOP CAMERA
-  // =========================
-
-  function stopCamera() {
-
-    detecting = false;
-
-    if (stream) {
-
-      stream.getTracks().forEach(track => {
-        track.stop();
-      });
-
-      stream = null;
-    }
-
-    video.srcObject = null;
+    video.srcObject = stream;
 
     statusText.innerText =
-      "Camera stopped";
+      "✅ Front Camera Working";
 
-    handStatus.innerText =
-      "✋ Hand not detected";
+    startHandDetection();
 
-    resultText.innerText =
-      "Result: Waiting...";
+  } catch (error) {
 
-    lastResult = "";
+    console.log(error);
+
+    statusText.innerText =
+      "❌ Front Camera Error";
+
+  }
+}
+
+
+// =========================
+// BACK CAMERA
+// =========================
+
+async function startBackCamera() {
+
+  stopCamera();
+
+  try {
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: {
+          exact: "environment"
+        }
+      },
+      audio: false
+    });
+
+    video.srcObject = stream;
+
+    statusText.innerText =
+      "✅ Back Camera Working";
+
+    startHandDetection();
+
+  } catch (error) {
+
+    try {
+
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "environment"
+        },
+        audio: false
+      });
+
+      video.srcObject = stream;
+
+      statusText.innerText =
+        "✅ Back Camera Working";
+
+      startHandDetection();
+
+    } catch (error2) {
+
+      statusText.innerText =
+        "❌ Back Camera Error";
+
+    }
+  }
+}
+
+
+// =========================
+// STOP CAMERA
+// =========================
+
+function stopCamera() {
+
+  detecting = false;
+
+  if (stream) {
+
+    stream.getTracks().forEach(track => {
+      track.stop();
+    });
+
+    stream = null;
   }
 
+  video.srcObject = null;
 
-  // =========================
-  // HAND DETECTION START
-  // =========================
+  statusText.innerText =
+    "Camera stopped";
 
-  function startHandDetection() {
+  handStatus.innerText =
+    "✋ Hand not detected";
 
-    if (!hands) {
+  resultText.innerText =
+    "Result: Waiting...";
 
-      hands = new Hands({
-        locateFile: (file) => {
-          return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+  lastResult = "";
+}
+
+
+// =========================
+// HAND DETECTION
+// =========================
+
+function startHandDetection() {
+
+  if (!hands) {
+
+    hands = new Hands({
+      locateFile: (file) => {
+
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+
+      }
+    });
+
+
+    hands.setOptions({
+
+      maxNumHands: 1,
+
+      modelComplexity: 1,
+
+      minDetectionConfidence: 0.6,
+
+      minTrackingConfidence: 0.6
+
+    });
+
+
+    hands.onResults((results) => {
+
+      if (
+        results.multiHandLandmarks &&
+        results.multiHandLandmarks.length > 0
+      ) {
+
+        const landmarks =
+          results.multiHandLandmarks[0];
+
+
+        // YES
+
+        if (detectYes(landmarks)) {
+
+          showResult("YES");
+
         }
-      });
-
-      hands.setOptions({
-
-        maxNumHands: 1,
-
-        modelComplexity: 1,
-
-        minDetectionConfidence: 0.6,
-
-        minTrackingConfidence: 0.6
-
-      });
 
 
-      // =========================
-      // MEDIAPIPE RESULTS
-      // =========================
+        // NO
 
-      hands.onResults((results) => {
+        else if (detectNo(landmarks)) {
 
-        if (
-          results.multiHandLandmarks &&
-          results.multiHandLandmarks.length > 0
-        ) {
+          showResult("NO");
 
-          const landmarks =
-            results.multiHandLandmarks[0];
+        }
 
 
-          // YES DETECTION
+        // NORMAL HAND
 
-          if (detectYes(landmarks)) {
-
-            handStatus.innerText =
-              "👍 YES Gesture Detected";
-
-            resultText.innerText =
-              "YES";
-
-
-            // Voice only once
-
-            if (lastResult !== "YES") {
-
-              speakText("Yes");
-
-              lastResult = "YES";
-
-            }
-
-          } else {
-
-            handStatus.innerText =
-              "✋ Hand Detected";
-
-            if (lastResult === "YES") {
-              lastResult = "";
-            }
-
-          }
-
-        } else {
+        else {
 
           handStatus.innerText =
-            "✋ Hand not detected";
+            "✋ Hand Detected";
 
         }
-
-      });
-
-    }
-
-
-    detecting = true;
-
-    detectHand();
-
-  }
-
-
-  // =========================
-  // SEND CAMERA FRAME
-  // =========================
-
-  async function detectHand() {
-
-    if (!detecting) {
-      return;
-    }
-
-    if (
-      video.readyState >= 2 &&
-      hands
-    ) {
-
-      try {
-
-        await hands.send({
-          image: video
-        });
-
-      } catch (error) {
-
-        console.log(error);
 
       }
 
-    }
+      else {
 
-    requestAnimationFrame(detectHand);
+        handStatus.innerText =
+          "✋ Hand not detected";
 
-  }
+      }
 
-
-  // =========================
-  // YES GESTURE
-  // =========================
-
-  function detectYes(landmarks) {
-
-    const thumbTip = landmarks[4];
-    const thumbIP = landmarks[3];
-
-    const indexTip = landmarks[8];
-    const indexPIP = landmarks[6];
-
-    const middleTip = landmarks[12];
-    const middlePIP = landmarks[10];
-
-    const ringTip = landmarks[16];
-    const ringPIP = landmarks[14];
-
-    const pinkyTip = landmarks[20];
-    const pinkyPIP = landmarks[18];
-
-
-    // Thumb is up
-
-    const thumbUp =
-      thumbTip.y < thumbIP.y;
-
-
-    // Other fingers folded
-
-    const indexFolded =
-      indexTip.y > indexPIP.y;
-
-    const middleFolded =
-      middleTip.y > middlePIP.y;
-
-    const ringFolded =
-      ringTip.y > ringPIP.y;
-
-    const pinkyFolded =
-      pinkyTip.y > pinkyPIP.y;
-
-
-    return (
-      thumbUp &&
-      indexFolded &&
-      middleFolded &&
-      ringFolded &&
-      pinkyFolded
-    );
+    });
 
   }
 
+  detecting = true;
 
-  // =========================
-  // TEXT TO VOICE
-  // =========================
+  detectHand();
+}
 
-  function speakText(text) {
 
-    if (!("speechSynthesis" in window)) {
+// =========================
+// SEND CAMERA FRAME
+// =========================
 
-      alert("Voice is not supported in this browser.");
+async function detectHand() {
 
-      return;
+  if (!detecting) {
+    return;
+  }
+
+  if (
+    video.readyState >= 2 &&
+    hands
+  ) {
+
+    try {
+
+      await hands.send({
+        image: video
+      });
+
+    } catch (error) {
+
+      console.log(error);
 
     }
 
-    window.speechSynthesis.cancel();
-
-    const speech =
-      new SpeechSynthesisUtterance(text);
-
-    speech.lang = "en-US";
-
-    speech.rate = 0.9;
-
-    speech.pitch = 1;
-
-    window.speechSynthesis.speak(speech);
-
   }
 
+  requestAnimationFrame(detectHand);
+}
 
-  // =========================
-  // TEST VOICE BUTTON
-  // =========================
 
-  function testVoice() {
+// =========================
+// YES DETECTION
+// =========================
 
-    speakText("Yes");
+function detectYes(landmarks) {
+
+  const thumbTip = landmarks[4];
+  const thumbIP = landmarks[3];
+
+  const indexTip = landmarks[8];
+  const indexPIP = landmarks[6];
+
+  const middleTip = landmarks[12];
+  const middlePIP = landmarks[10];
+
+  const ringTip = landmarks[16];
+  const ringPIP = landmarks[14];
+
+  const pinkyTip = landmarks[20];
+  const pinkyPIP = landmarks[18];
+
+
+  const thumbUp =
+    thumbTip.y < thumbIP.y;
+
+  const indexFolded =
+    indexTip.y > indexPIP.y;
+
+  const middleFolded =
+    middleTip.y > middlePIP.y;
+
+  const ringFolded =
+    ringTip.y > ringPIP.y;
+
+  const pinkyFolded =
+    pinkyTip.y > pinkyPIP.y;
+
+
+  return (
+    thumbUp &&
+    indexFolded &&
+    middleFolded &&
+    ringFolded &&
+    pinkyFolded
+  );
+}
+
+
+// =========================
+// NO DETECTION
+// =========================
+
+function detectNo(landmarks) {
+
+  const indexTip = landmarks[8];
+  const indexPIP = landmarks[6];
+
+  const middleTip = landmarks[12];
+  const middlePIP = landmarks[10];
+
+  const ringTip = landmarks[16];
+  const ringPIP = landmarks[14];
+
+  const pinkyTip = landmarks[20];
+  const pinkyPIP = landmarks[18];
+
+
+  // Index + middle fingers extended
+
+  const indexOpen =
+    indexTip.y < indexPIP.y;
+
+  const middleOpen =
+    middleTip.y < middlePIP.y;
+
+
+  // Ring + pinky folded
+
+  const ringFolded =
+    ringTip.y > ringPIP.y;
+
+  const pinkyFolded =
+    pinkyTip.y > pinkyPIP.y;
+
+
+  return (
+    indexOpen &&
+    middleOpen &&
+    ringFolded &&
+    pinkyFolded
+  );
+}
+
+
+// =========================
+// SHOW RESULT + VOICE
+// =========================
+
+function showResult(result) {
+
+  handStatus.innerText =
+    "✋ " + result + " Gesture Detected";
+
+  resultText.innerText =
+    result;
+
+
+  if (lastResult !== result) {
+
+    speakText(result);
+
+    lastResult = result;
 
   }
+}
+
+
+// =========================
+// VOICE
+// =========================
+
+function speakText(text) {
+
+  if (!("speechSynthesis" in window)) {
+
+    alert("Voice is not supported");
+
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const speech =
+    new SpeechSynthesisUtterance(text);
+
+  speech.lang = "en-US";
+
+  speech.rate = 0.9;
+
+  speech.pitch = 1;
+
+  window.speechSynthesis.speak(speech);
+}
+
+
+// =========================
+// TEST VOICE
+// =========================
+
+function testVoice() {
+
+  speakText("Yes");
+
+}
 
 </script>
 
