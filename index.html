@@ -59,131 +59,43 @@
 
     <h2>Camera</h2>
 
-    <video id="camera" autoplay playsinline style="width:100%; max-width:600px; height:400px; background:#000; border-radius:12px; object-fit:cover;"></video>
+    <video id="camera" autoplay playsinline></video>
 
     <br>
 
     <button onclick="startCamera()">Start Camera</button>
-    
-    <button onclick="switchCamera()">Switch Front / Back</button>
 
     <p id="status">Camera not started</p>
 
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script>
 
-<script>
+    const video = document.getElementById("camera");
+    const status = document.getElementById("status");
 
-const video = document.getElementById("camera");
-const status = document.getElementById("status");
+    async function startCamera() {
 
-let detecting = false;
-let currentCamera = "user";
+      try {
 
-const hands = new Hands({
-  locateFile: (file) => {
-    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-  }
-});
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
 
-hands.setOptions({
-  maxNumHands: 1,
-  modelComplexity: 1,
-  minDetectionConfidence: 0.5,
-  minTrackingConfidence: 0.5
-});
+        video.srcObject = stream;
 
-function detectYes(landmarks) {
+        status.innerText = "Camera working ✅";
 
-  const thumbTip = landmarks[4];
-  const thumbIP = landmarks[3];
+      } catch (error) {
 
-  const indexTip = landmarks[8];
-  const indexPIP = landmarks[6];
+        status.innerText = "Camera permission/error ❌";
 
-  const middleTip = landmarks[12];
-  const middlePIP = landmarks[10];
+        console.log(error);
+      }
+    }
 
-  const ringTip = landmarks[16];
-  const ringPIP = landmarks[14];
+  </script>
 
-  const pinkyTip = landmarks[20];
-  const pinkyPIP = landmarks[18];
-
-  const thumbUp = thumbTip.y < thumbIP.y;
-  const indexFolded = indexTip.y > indexPIP.y;
-  const middleFolded = middleTip.y > middlePIP.y;
-  const ringFolded = ringTip.y > ringPIP.y;
-  const pinkyFolded = pinkyTip.y > pinkyPIP.y;
-
-  return (
-    thumbUp &&
-    indexFolded &&
-    middleFolded &&
-    ringFolded &&
-    pinkyFolded
-  );
-}
-
-hands.onResults((results) => {
-
-  if (
-  results.multiHandLandmarks &&
-  results.multiHandLandmarks.length > 0
-) {
-
-  const landmarks = results.multiHandLandmarks[0];
-
-  if (detectYes(landmarks)) {
-    status.innerText = "Yes 👍";
-  } else {
-    status.innerText = "Hand detected 🖐️";
-  }
-    
-});
-
-async function detectHands() {
-
-  if (video.readyState >= 2) {
-    await hands.send({
-      image: video
-    });
-  }
-
-  requestAnimationFrame(detectHands);
-}
-
-async function startCamera() {
-
-  try {
-
-    status.innerText = "Starting camera...";
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: currentCamera
-      },
-      audio: false
-    });
-
-    video.srcObject = stream;
-
-    video.style.display = "block";
-
-    await video.play();
-
-    status.innerText = "Camera working ✅";
-
-  } catch (error) {
-
-    console.log(error);
-
-    status.innerText = "Camera Error ❌ " + error.message;
-
-  }
-}
-
-</script>
 </body>
 </html>
