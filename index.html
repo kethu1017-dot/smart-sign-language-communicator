@@ -1,17 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Smart Sign Language Communicator</title>
 
-  <!-- MediaPipe Hands -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-
   <style>
-
     * {
       box-sizing: border-box;
     }
@@ -19,1435 +14,712 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #eef2ff, #dbeafe);
-      color: #111827;
+      background: #f3f5ff;
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(135deg, #5145cd, #8b35e8);
+      color: white;
       text-align: center;
+      padding: 25px 15px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      font-size: 13px;
+    }
+
+    .language-box {
+      margin-top: 15px;
+    }
+
+    select {
+      padding: 9px 14px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
     }
 
     .container {
-      width: 95%;
-      max-width: 900px;
-      margin: 20px auto;
-    }
-
-    h1 {
-      color: #1e3a8a;
-      margin-bottom: 5px;
-    }
-
-    .subtitle {
-      color: #4b5563;
-      margin-bottom: 20px;
-    }
-
-    .camera-box {
-      position: relative;
-      width: 100%;
+      width: 94%;
       max-width: 700px;
-      margin: auto;
-      background: black;
+      margin: 28px auto;
+    }
+
+    .card {
+      background: white;
       border-radius: 15px;
-      overflow: hidden;
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+      text-align: center;
     }
 
-    video {
-      width: 100%;
-      display: block;
-      transform: scaleX(-1);
+    .card h2 {
+      color: #5145cd;
+      font-size: 19px;
+      margin-top: 0;
     }
 
-    canvas {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      transform: scaleX(-1);
-      pointer-events: none;
-    }
-
-    .buttons {
-      margin: 15px 0;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
+    .card p {
+      font-size: 14px;
+      color: #555;
     }
 
     button {
       border: none;
+      border-radius: 8px;
       padding: 12px 18px;
-      border-radius: 10px;
-      background: #2563eb;
+      margin: 5px;
+      background: linear-gradient(135deg, #5145cd, #743be2);
       color: white;
-      font-size: 15px;
       cursor: pointer;
+      font-size: 14px;
     }
 
     button:hover {
-      background: #1d4ed8;
+      opacity: 0.88;
     }
 
-    .stop {
-      background: #dc2626;
+    .danger {
+      background: #dc3545;
     }
 
-    .stop:hover {
-      background: #b91c1c;
+    .success {
+      background: #198754;
     }
 
-    .status-box {
-      background: white;
-      padding: 18px;
+    video {
+      width: 100%;
+      max-height: 330px;
+      background: #111;
+      border-radius: 12px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      margin: 15px 0;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .output {
+      background: #f1f2ff;
+      border-radius: 10px;
+      padding: 15px;
+      min-height: 48px;
+      margin-top: 12px;
+      font-size: 17px;
+    }
+
+    .gesture-display {
       margin-top: 15px;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      font-size: 22px;
+      font-weight: bold;
+      color: #5145cd;
     }
 
     .status {
-      font-size: 18px;
-      margin: 8px;
+      font-size: 14px;
+      margin-top: 12px;
+      color: #555;
     }
 
-    .result {
-      font-size: 32px;
-      font-weight: bold;
-      color: #16a34a;
-      margin-top: 10px;
-      min-height: 45px;
-    }
-
-    .instructions {
-      background: white;
-      margin-top: 20px;
-      padding: 20px;
-      border-radius: 15px;
-      text-align: left;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    }
-
-    .instructions h2 {
+    .footer {
       text-align: center;
+      padding: 20px;
+      color: #777;
+      font-size: 12px;
     }
 
-    .instructions li {
-      margin: 12px 0;
+    .hidden {
+      display: none;
     }
 
-    .detected {
-      color: #16a34a;
-      font-weight: bold;
+    .sign-list {
+      text-align: left;
+      margin-top: 15px;
+      line-height: 1.8;
+      font-size: 14px;
     }
-
-    .not-detected {
-      color: #dc2626;
-      font-weight: bold;
-    }
-
   </style>
 </head>
 
-
 <body>
 
-<div class="container">
+  <!-- HEADER -->
+  <header>
+    <h1 id="appTitle">🤟 Smart Sign Language Communicator</h1>
+    <p id="appSubtitle">AI Based Communication System</p>
 
-  <h1>🤟 Smart Sign Language Communicator</h1>
+    <div class="language-box">
+      <label for="languageSelect">🌐 Language:</label>
 
-  <p class="subtitle">
-    AI-Based Sign Gesture Recognition System
-  </p>
+      <select id="languageSelect" onchange="changeLanguage()">
+        <option value="en">English</option>
+        <option value="ta">தமிழ்</option>
+      </select>
+    </div>
+  </header>
 
 
-  <!-- CAMERA -->
+  <main class="container">
 
-  <div class="camera-box">
+    <!-- CAMERA CARD -->
+    <section class="card">
 
-    <video
-      id="video"
-      autoplay
-      playsinline>
-    </video>
+      <h2 id="cameraTitle">📷 Sign Detection</h2>
 
-    <canvas id="canvas"></canvas>
+      <p id="cameraDescription">
+        Show your hand sign in front of the camera.
+      </p>
 
+      <button onclick="startCamera()" id="startButton">
+        ▶ Start Detection
+      </button>
+
+      <button onclick="switchCamera()" id="switchButton">
+        🔄 Switch Camera
+      </button>
+
+      <button onclick="stopCamera()" class="danger" id="stopButton">
+        ⛔ Stop Camera
+      </button>
+
+      <video id="cameraVideo" autoplay playsinline></video>
+
+      <div class="status" id="cameraStatus">
+        Camera is not started.
+      </div>
+
+      <div class="output" id="cameraResult">
+        Show your hand in front of camera
+      </div>
+
+    </section>
+
+
+    <!-- UPLOAD VIDEO CARD -->
+    <section class="card">
+
+      <h2 id="uploadTitle">📹 Upload Sign Language Video</h2>
+
+      <p id="uploadDescription">
+        Upload a sign language video to recognize the gesture.
+      </p>
+
+      <input type="file" id="videoFile" accept="video/*" />
+
+      <button onclick="processVideo()" id="processButton">
+        ▶ Process Video
+      </button>
+
+      <div class="output" id="uploadResult">
+        No video processed yet.
+      </div>
+
+    </section>
+
+
+    <!-- TEXT TO SIGN CARD -->
+    <section class="card">
+
+      <h2 id="textSignTitle">✍️ Text to Sign Language</h2>
+
+      <p id="textSignDescription">
+        Type a word to see the sign language gesture.
+      </p>
+
+      <input
+        type="text"
+        id="wordInput"
+        placeholder="Type a word..."
+      />
+
+      <button onclick="showSign()" id="showSignButton">
+        🤟 Show Sign
+      </button>
+
+      <div class="gesture-display" id="signOutput">
+        👋 Hello
+      </div>
+
+    </section>
+
+
+    <!-- RECOGNIZED TEXT CARD -->
+    <section class="card">
+
+      <h2 id="recognizedTitle">📝 Recognized Text</h2>
+
+      <div class="output" id="recognizedText">
+        Waiting for sign...
+      </div>
+
+      <button onclick="speakText()" class="success" id="speakButton">
+        🔊 Speak
+      </button>
+
+    </section>
+
+
+    <!-- SUPPORTED SIGNS -->
+    <section class="card">
+
+      <h2 id="supportedTitle">🤟 Supported Sign Words</h2>
+
+      <div class="sign-list" id="supportedSigns">
+        👍 YES<br>
+        🤞 NO<br>
+        ✋ ALL DONE<br>
+        👍🖐️ HELP<br>
+        🖐️ PLEASE<br>
+        🤜🤛 MORE<br>
+        🙏 THANK YOU<br>
+        ✋ STOP
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <div class="footer">
+    Smart Sign Language Communicator © 2026
   </div>
 
 
-  <!-- BUTTONS -->
 
-  <div class="buttons">
+  <script>
+
+    // =====================================================
+    // LANGUAGE DATA
+    // =====================================================
+
+    const translations = {
+
+      en: {
+        appTitle: "🤟 Smart Sign Language Communicator",
+        appSubtitle: "AI Based Communication System",
+
+        cameraTitle: "📷 Sign Detection",
+        cameraDescription: "Show your hand sign in front of the camera.",
+
+        startButton: "▶ Start Detection",
+        switchButton: "🔄 Switch Camera",
+        stopButton: "⛔ Stop Camera",
+
+        cameraNotStarted: "Camera is not started.",
+        cameraStarted: "Camera started successfully.",
+        cameraStopped: "Camera stopped.",
+        cameraError: "Camera permission denied or unavailable.",
+        showHand: "Show your hand in front of camera",
 
-    <button onclick="startCamera('user')">
-      📱 Front Camera
-    </button>
+        uploadTitle: "📹 Upload Sign Language Video",
+        uploadDescription: "Upload a sign language video to recognize the gesture.",
+        processButton: "▶ Process Video",
+        noVideo: "Please select a video first.",
+        videoProcessed: "Video selected. Gesture processing can be connected here.",
 
-    <button onclick="startCamera('environment')">
-      📷 Back Camera
-    </button>
+        textSignTitle: "✍️ Text to Sign Language",
+        textSignDescription: "Type a word to see the sign language gesture.",
+        showSignButton: "🤟 Show Sign",
+        typeWord: "Please type a word.",
 
-    <button class="stop" onclick="stopCamera()">
-      ⛔ Stop Camera
-    </button>
+        recognizedTitle: "📝 Recognized Text",
+        waiting: "Waiting for sign...",
+        speakButton: "🔊 Speak",
 
-    <button onclick="testVoice()">
-      🔊 Test Voice
-    </button>
+        supportedTitle: "🤟 Supported Sign Words",
 
-  </div>
+        hello: "👋 Hello",
+        unknownWord: "Gesture image is not available for this word.",
 
+        signs:
+          "👍 YES<br>" +
+          "🤞 NO<br>" +
+          "✋ ALL DONE<br>" +
+          "👍🖐️ HELP<br>" +
+          "🖐️ PLEASE<br>" +
+          "🤜🤛 MORE<br>" +
+          "🙏 THANK YOU<br>" +
+          "✋ STOP"
+      },
 
-  <!-- STATUS -->
+      ta: {
+        appTitle: "🤟 சைகை மொழி தொடர்பு அமைப்பு",
+        appSubtitle: "AI அடிப்படையிலான தொடர்பு அமைப்பு",
 
-  <div class="status-box">
+        cameraTitle: "📷 சைகை கண்டறிதல்",
+        cameraDescription: "கேமரா முன் உங்கள் கை சைகையை காட்டுங்கள்.",
 
-    <div class="status">
+        startButton: "▶ கண்டறிதலை தொடங்கு",
+        switchButton: "🔄 கேமராவை மாற்று",
+        stopButton: "⛔ கேமராவை நிறுத்து",
 
-      Camera:
-      <span id="cameraStatus" class="not-detected">
-        Not Started
-      </span>
+        cameraNotStarted: "கேமரா தொடங்கப்படவில்லை.",
+        cameraStarted: "கேமரா வெற்றிகரமாக தொடங்கப்பட்டது.",
+        cameraStopped: "கேமரா நிறுத்தப்பட்டது.",
+        cameraError: "கேமரா அனுமதி மறுக்கப்பட்டது அல்லது கிடைக்கவில்லை.",
+        showHand: "கேமரா முன் உங்கள் கையை காட்டுங்கள்",
 
-    </div>
+        uploadTitle: "📹 சைகை மொழி வீடியோவை பதிவேற்றவும்",
+        uploadDescription: "சைகையை கண்டறிய வீடியோவை பதிவேற்றவும்.",
+        processButton: "▶ வீடியோவை செயலாக்கு",
+        noVideo: "முதலில் ஒரு வீடியோவை தேர்வு செய்யவும்.",
+        videoProcessed: "வீடியோ தேர்வு செய்யப்பட்டது. Gesture processing இங்கே இணைக்கலாம்.",
 
+        textSignTitle: "✍️ உரையிலிருந்து சைகை மொழி",
+        textSignDescription: "சைகையை பார்க்க ஒரு வார்த்தையை உள்ளிடவும்.",
+        showSignButton: "🤟 சைகையை காட்டு",
+        typeWord: "தயவுசெய்து ஒரு வார்த்தையை உள்ளிடவும்.",
 
-    <div class="status">
+        recognizedTitle: "📝 கண்டறியப்பட்ட உரை",
+        waiting: "சைகைக்காக காத்திருக்கிறது...",
+        speakButton: "🔊 ஒலி எழுப்பு",
 
-      Hand Detection:
-      <span id="handStatus" class="not-detected">
-        Waiting...
-      </span>
+        supportedTitle: "🤟 ஆதரிக்கப்படும் சைகை வார்த்தைகள்",
 
-    </div>
+        hello: "👋 வணக்கம்",
+        unknownWord: "இந்த வார்த்தைக்கான சைகை படம் இல்லை.",
 
+        signs:
+          "👍 ஆம் / YES<br>" +
+          "🤞 இல்லை / NO<br>" +
+          "✋ முடிந்தது / ALL DONE<br>" +
+          "👍🖐️ உதவி / HELP<br>" +
+          "🖐️ தயவு செய்து / PLEASE<br>" +
+          "🤜🤛 இன்னும் / MORE<br>" +
+          "🙏 நன்றி / THANK YOU<br>" +
+          "✋ நிறுத்து / STOP"
+      }
 
-    <div class="status">
+    };
 
-      Sign Result:
 
-    </div>
+    let currentLanguage = "en";
+    let currentStream = null;
+    let currentCamera = "user";
+    let lastRecognizedText = "";
 
 
-    <div id="result" class="result">
-      -
-    </div>
+    // =====================================================
+    // LANGUAGE CHANGE
+    // =====================================================
 
-  </div>
+    function changeLanguage() {
 
+      currentLanguage =
+        document.getElementById("languageSelect").value;
 
-  <!-- INSTRUCTIONS -->
+      const t = translations[currentLanguage];
 
-  <div class="instructions">
+      document.getElementById("appTitle").textContent =
+        t.appTitle;
 
-    <h2>✋ Gesture Instructions</h2>
+      document.getElementById("appSubtitle").textContent =
+        t.appSubtitle;
 
-    <ol>
+      document.getElementById("cameraTitle").textContent =
+        t.cameraTitle;
 
-      <li>
-        <b>✋ ALL DONE</b> —
-        Show two open hands and move/wave them.
-      </li>
+      document.getElementById("cameraDescription").textContent =
+        t.cameraDescription;
 
-      <li>
-        <b>👍 YES</b> —
-        Make a fist and keep the thumb pointing upward.
-      </li>
+      document.getElementById("startButton").textContent =
+        t.startButton;
 
-      <li>
-        <b>👍🖐️ HELP</b> —
-        Keep one hand open and place the
-        thumb-up hand over the palm.
-      </li>
+      document.getElementById("switchButton").textContent =
+        t.switchButton;
 
-      <li>
-        <b>🖐️ PLEASE</b> —
-        Keep an open/flat hand and make
-        a circular movement.
-      </li>
+      document.getElementById("stopButton").textContent =
+        t.stopButton;
 
-      <li>
-        <b>🤜🤛 MORE</b> —
-        Use two hands facing each other
-        and move them toward each other.
-      </li>
+      document.getElementById("uploadTitle").textContent =
+        t.uploadTitle;
 
-      <li>
-        <b>🖐️ THANK YOU</b> —
-        Start with an open hand near the mouth
-        and move it forward.
-      </li>
+      document.getElementById("uploadDescription").textContent =
+        t.uploadDescription;
 
-      <li>
-        <b>🤞 NO</b> —
-        Make the crossed/overlapping finger
-        gesture shown in the reference image.
-      </li>
+      document.getElementById("processButton").textContent =
+        t.processButton;
 
-      <li>
-        <b>✋ STOP</b> —
-        Show an open palm over/near the
-        other hand.
-      </li>
+      document.getElementById("textSignTitle").textContent =
+        t.textSignTitle;
 
-    </ol>
+      document.getElementById("textSignDescription").textContent =
+        t.textSignDescription;
 
-  </div>
+      document.getElementById("showSignButton").textContent =
+        t.showSignButton;
 
-</div>
+      document.getElementById("recognizedTitle").textContent =
+        t.recognizedTitle;
 
+      document.getElementById("speakButton").textContent =
+        t.speakButton;
 
+      document.getElementById("supportedTitle").textContent =
+        t.supportedTitle;
 
-<script>
+      document.getElementById("supportedSigns").innerHTML =
+        t.signs;
 
+      document.getElementById("cameraStatus").textContent =
+        t.cameraNotStarted;
 
-// ============================================================
-// CAMERA
-// ============================================================
+      document.getElementById("cameraResult").textContent =
+        t.showHand;
 
-const video =
-  document.getElementById("video");
+      document.getElementById("recognizedText").textContent =
+        t.waiting;
 
-const canvas =
-  document.getElementById("canvas");
+      document.getElementById("signOutput").textContent =
+        t.hello;
 
-const ctx =
-  canvas.getContext("2d");
-
-
-const cameraStatus =
-  document.getElementById("cameraStatus");
-
-const handStatus =
-  document.getElementById("handStatus");
-
-const resultElement =
-  document.getElementById("result");
-
-
-let stream = null;
-
-let cameraRunning = false;
-
-
-
-async function startCamera(cameraType) {
-
-  stopCamera();
-
-  try {
-
-    stream =
-      await navigator.mediaDevices.getUserMedia({
-
-        video: {
-
-          facingMode: cameraType,
-
-          width: {
-            ideal: 1280
-          },
-
-          height: {
-            ideal: 720
-          }
-
-        },
-
-        audio: false
-
-      });
-
-
-    video.srcObject = stream;
-
-    cameraRunning = true;
-
-    cameraStatus.textContent = "Running";
-
-    cameraStatus.className =
-      "detected";
-
-
-    await video.play();
-
-    processVideo();
-
-
-  } catch (error) {
-
-    console.error(error);
-
-    cameraStatus.textContent =
-      "Camera Error";
-
-    cameraStatus.className =
-      "not-detected";
-
-
-    alert(
-      "Camera permission denied or unavailable."
-    );
-
-  }
-
-}
-
-
-
-function stopCamera() {
-
-  cameraRunning = false;
-
-
-  if (stream) {
-
-    stream.getTracks().forEach(
-      track => track.stop()
-    );
-
-    stream = null;
-  }
-
-
-  video.srcObject = null;
-
-
-  cameraStatus.textContent =
-    "Stopped";
-
-  cameraStatus.className =
-    "not-detected";
-
-
-  handStatus.textContent =
-    "Waiting...";
-
-  handStatus.className =
-    "not-detected";
-
-
-  resultElement.textContent =
-    "-";
-
-
-  resetHistory();
-
-}
-
-
-
-// ============================================================
-// MEDIAPIPE
-// ============================================================
-
-const hands = new Hands({
-
-  locateFile: (file) => {
-
-    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-
-  }
-
-});
-
-
-hands.setOptions({
-
-  // IMPORTANT:
-  // We need TWO hands for this image.
-
-  maxNumHands: 2,
-
-  modelComplexity: 1,
-
-  minDetectionConfidence: 0.65,
-
-  minTrackingConfidence: 0.65
-
-});
-
-
-hands.onResults(onResults);
-
-
-
-async function processVideo() {
-
-  if (!cameraRunning) {
-    return;
-  }
-
-
-  if (video.readyState >= 2) {
-
-    canvas.width =
-      video.videoWidth;
-
-    canvas.height =
-      video.videoHeight;
-
-
-    await hands.send({
-      image: video
-    });
-
-  }
-
-
-  requestAnimationFrame(
-    processVideo
-  );
-
-}
-
-
-
-// ============================================================
-// DRAW LANDMARKS
-// ============================================================
-
-function drawLandmarks(allHands) {
-
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-
-  ctx.fillStyle = "#00ff00";
-
-
-  for (const landmarks of allHands) {
-
-    for (const point of landmarks) {
-
-      const x =
-        point.x * canvas.width;
-
-      const y =
-        point.y * canvas.height;
-
-
-      ctx.beginPath();
-
-      ctx.arc(
-        x,
-        y,
-        5,
-        0,
-        Math.PI * 2
-      );
-
-      ctx.fill();
+      document.getElementById("wordInput").placeholder =
+        currentLanguage === "ta"
+          ? "ஒரு வார்த்தையை உள்ளிடவும்..."
+          : "Type a word...";
 
     }
 
-  }
 
-}
+    // =====================================================
+    // CAMERA FUNCTIONS
+    // =====================================================
 
+    async function startCamera() {
 
+      stopCamera();
 
-// ============================================================
-// MOVEMENT HISTORY
-// ============================================================
+      const t = translations[currentLanguage];
 
-let history = [];
+      try {
 
-const MAX_HISTORY = 15;
+        currentStream =
+          await navigator.mediaDevices.getUserMedia({
 
+            video: {
+              facingMode: currentCamera
+            },
 
-function updateHistory(landmarks) {
+            audio: false
 
-  const wrist =
-    landmarks[0];
+          });
 
+        const video =
+          document.getElementById("cameraVideo");
 
-  history.push({
+        video.srcObject = currentStream;
 
-    x: wrist.x,
+        video.style.display = "block";
 
-    y: wrist.y,
+        document.getElementById("cameraStatus").textContent =
+          t.cameraStarted;
 
-    time: Date.now()
+        document.getElementById("cameraResult").textContent =
+          t.showHand;
 
-  });
+      } catch (error) {
 
+        console.error(error);
 
-  if (
-    history.length >
-    MAX_HISTORY
-  ) {
-
-    history.shift();
-
-  }
-
-}
-
-
-
-function resetHistory() {
-
-  history = [];
-
-}
-
-
-
-// ============================================================
-// RESULT
-// ============================================================
-
-function onResults(results) {
-
-
-  if (
-    !results.multiHandLandmarks ||
-    results.multiHandLandmarks.length === 0
-  ) {
-
-    handStatus.textContent =
-      "No Hand";
-
-    handStatus.className =
-      "not-detected";
-
-
-    resultElement.textContent =
-      "-";
-
-
-    resetHistory();
-
-    return;
-
-  }
-
-
-  handStatus.textContent =
-    results.multiHandLandmarks.length +
-    " Hand(s) Detected";
-
-  handStatus.className =
-    "detected";
-
-
-  drawLandmarks(
-    results.multiHandLandmarks
-  );
-
-
-  const hand1 =
-    results.multiHandLandmarks[0];
-
-
-  updateHistory(hand1);
-
-
-  const gesture =
-    detectGesture(
-      results.multiHandLandmarks
-    );
-
-
-  stabilizeGesture(gesture);
-
-}
-
-
-
-// ============================================================
-// STABILIZATION
-// ============================================================
-
-let lastGesture = "";
-
-let gestureCount = 0;
-
-let lastSpeechTime = 0;
-
-
-function stabilizeGesture(gesture) {
-
-  if (gesture === "UNKNOWN") {
-
-    gestureCount = 0;
-
-    lastGesture = "";
-
-    return;
-  }
-
-
-  if (gesture === lastGesture) {
-
-    gestureCount++;
-
-  } else {
-
-    lastGesture = gesture;
-
-    gestureCount = 1;
-
-  }
-
-
-  if (gestureCount >= 5) {
-
-    resultElement.textContent =
-      gesture;
-
-
-    speakGesture(gesture);
-
-
-    gestureCount = 0;
-
-  }
-
-}
-
-
-
-// ============================================================
-// BASIC HELPERS
-// ============================================================
-
-function distance(a, b) {
-
-  const dx =
-    a.x - b.x;
-
-  const dy =
-    a.y - b.y;
-
-  const dz =
-    (a.z || 0) -
-    (b.z || 0);
-
-
-  return Math.sqrt(
-    dx * dx +
-    dy * dy +
-    dz * dz
-  );
-
-}
-
-
-
-function fingerOpen(
-  hand,
-  tip,
-  pip
-) {
-
-  return (
-    hand[tip].y <
-    hand[pip].y - 0.025
-  );
-
-}
-
-
-
-function fingerClosed(
-  hand,
-  tip,
-  pip
-) {
-
-  return (
-    hand[tip].y >
-    hand[pip].y - 0.015
-  );
-
-}
-
-
-
-// ============================================================
-// OPEN HAND
-// ============================================================
-
-function isOpenHand(hand) {
-
-  return (
-
-    fingerOpen(hand, 8, 6) &&
-
-    fingerOpen(hand, 12, 10) &&
-
-    fingerOpen(hand, 16, 14) &&
-
-    fingerOpen(hand, 20, 18)
-
-  );
-
-}
-
-
-
-// ============================================================
-// FIST
-// ============================================================
-
-function isFist(hand) {
-
-  return (
-
-    fingerClosed(hand, 8, 6) &&
-
-    fingerClosed(hand, 12, 10) &&
-
-    fingerClosed(hand, 16, 14) &&
-
-    fingerClosed(hand, 20, 18)
-
-  );
-
-}
-
-
-
-// ============================================================
-// YES
-// ============================================================
-
-function detectYes(hand) {
-
-  const thumbUp =
-    hand[4].y <
-    hand[3].y - 0.04;
-
-
-  return (
-
-    isFist(hand) &&
-
-    thumbUp
-
-  );
-
-}
-
-
-
-// ============================================================
-// ALL DONE
-// ============================================================
-
-function detectAllDone(handsArray) {
-
-  if (
-    handsArray.length !== 2
-  ) {
-
-    return false;
-
-  }
-
-
-  const hand1 =
-    handsArray[0];
-
-  const hand2 =
-    handsArray[1];
-
-
-  if (
-    !isOpenHand(hand1) ||
-    !isOpenHand(hand2)
-  ) {
-
-    return false;
-
-  }
-
-
-  if (history.length < 7) {
-
-    return false;
-
-  }
-
-
-  const first =
-    history[0];
-
-  const last =
-    history[history.length - 1];
-
-
-  const movement =
-    Math.abs(last.x - first.x);
-
-
-  return movement > 0.04;
-
-}
-
-
-
-// ============================================================
-// HELP
-// ============================================================
-
-function detectHelp(handsArray) {
-
-  if (
-    handsArray.length !== 2
-  ) {
-
-    return false;
-
-  }
-
-
-  const h1 =
-    handsArray[0];
-
-  const h2 =
-    handsArray[1];
-
-
-  const open1 =
-    isOpenHand(h1);
-
-  const open2 =
-    isOpenHand(h2);
-
-
-  const fist1 =
-    isFist(h1);
-
-  const fist2 =
-    isFist(h2);
-
-
-  const thumb1 =
-    h1[4].y <
-    h1[3].y - 0.03;
-
-  const thumb2 =
-    h2[4].y <
-    h2[3].y - 0.03;
-
-
-  return (
-
-    (open1 && fist2 && thumb2) ||
-
-    (open2 && fist1 && thumb1)
-
-  );
-
-}
-
-
-
-// ============================================================
-// PLEASE
-// ============================================================
-
-function detectPlease(hand) {
-
-  if (!isOpenHand(hand)) {
-
-    return false;
-
-  }
-
-
-  if (history.length < 10) {
-
-    return false;
-
-  }
-
-
-  let directionChanges = 0;
-
-
-  for (
-    let i = 2;
-    i < history.length;
-    i++
-  ) {
-
-    const previous =
-      history[i - 1];
-
-    const current =
-      history[i];
-
-
-    const dx =
-      current.x -
-      previous.x;
-
-
-    if (
-      i > 2
-    ) {
-
-      const before =
-        history[i - 2];
-
-      const previousDx =
-        previous.x -
-        before.x;
-
-
-      if (
-        dx * previousDx < 0
-      ) {
-
-        directionChanges++;
+        document.getElementById("cameraStatus").textContent =
+          t.cameraError;
 
       }
 
     }
 
-  }
 
+    function switchCamera() {
 
-  return (
-    directionChanges >= 2
-  );
+      currentCamera =
+        currentCamera === "user"
+          ? "environment"
+          : "user";
 
-}
+      startCamera();
 
+    }
 
 
-// ============================================================
-// MORE
-// ============================================================
+    function stopCamera() {
 
-function detectMore(handsArray) {
+      if (currentStream) {
 
-  if (
-    handsArray.length !== 2
-  ) {
+        currentStream.getTracks().forEach(
+          track => track.stop()
+        );
 
-    return false;
+        currentStream = null;
 
-  }
+      }
 
+      const video =
+        document.getElementById("cameraVideo");
 
-  const h1 =
-    handsArray[0];
+      video.srcObject = null;
+      video.style.display = "none";
 
-  const h2 =
-    handsArray[1];
+      document.getElementById("cameraStatus").textContent =
+        translations[currentLanguage].cameraStopped;
 
+    }
 
-  const fist1 =
-    isFist(h1);
 
-  const fist2 =
-    isFist(h2);
+    // =====================================================
+    // VIDEO UPLOAD
+    // =====================================================
 
+    function processVideo() {
 
-  if (
-    !fist1 ||
-    !fist2
-  ) {
+      const fileInput =
+        document.getElementById("videoFile");
 
-    return false;
+      const result =
+        document.getElementById("uploadResult");
 
-  }
+      const t =
+        translations[currentLanguage];
 
+      if (!fileInput.files.length) {
 
-  const centerDistance =
-    Math.abs(
-      h1[0].x -
-      h2[0].x
-    );
+        result.textContent =
+          t.noVideo;
 
+        return;
 
-  return (
-    centerDistance < 0.45
-  );
+      }
 
-}
+      result.textContent =
+        t.videoProcessed;
 
+    }
 
 
-// ============================================================
-// THANK YOU
-// ============================================================
+    // =====================================================
+    // TEXT TO SIGN
+    // =====================================================
 
-function detectThankYou(hand) {
+    function showSign() {
 
-  if (!isOpenHand(hand)) {
+      const word =
+        document.getElementById("wordInput")
+        .value
+        .trim()
+        .toLowerCase();
 
-    return false;
+      const output =
+        document.getElementById("signOutput");
 
-  }
+      const t =
+        translations[currentLanguage];
 
+      if (!word) {
 
-  if (history.length < 7) {
+        output.textContent =
+          t.typeWord;
 
-    return false;
+        return;
 
-  }
+      }
 
+      const signs = {
 
-  const first =
-    history[0];
+        hello: currentLanguage === "ta"
+          ? "👋 வணக்கம்"
+          : "👋 Hello",
 
-  const last =
-    history[
-      history.length - 1
-    ];
+        yes: "👍 YES / ஆம்",
 
+        no: "🤞 NO / இல்லை",
 
-  const forwardMovement =
-    Math.abs(
-      last.x -
-      first.x
-    );
+        "all done": "✋ ALL DONE / முடிந்தது",
 
+        help: "👍🖐️ HELP / உதவி",
 
-  const upwardMovement =
-    first.y -
-    last.y;
+        please: "🖐️ PLEASE / தயவு செய்து",
 
+        more: "🤜🤛 MORE / இன்னும்",
 
-  return (
+        "thank you": "🙏 THANK YOU / நன்றி",
 
-    forwardMovement > 0.05 ||
+        stop: "✋ STOP / நிறுத்து"
 
-    upwardMovement > 0.05
+      };
 
-  );
+      output.textContent =
+        signs[word] || t.unknownWord;
 
-}
+    }
 
 
+    // =====================================================
+    // RECOGNIZED TEXT + SPEECH
+    // =====================================================
 
-// ============================================================
-// NO
-// ============================================================
+    function setRecognizedText(text) {
 
-function detectNo(hand) {
+      lastRecognizedText = text;
 
-  const indexOpen =
-    fingerOpen(
-      hand,
-      8,
-      6
-    );
+      document.getElementById("recognizedText").textContent =
+        text;
 
+    }
 
-  const middleOpen =
-    fingerOpen(
-      hand,
-      12,
-      10
-    );
 
+    function speakText() {
 
-  const ringClosed =
-    fingerClosed(
-      hand,
-      16,
-      14
-    );
+      if (!("speechSynthesis" in window)) {
 
+        alert("Speech synthesis is not supported in this browser.");
 
-  const pinkyClosed =
-    fingerClosed(
-      hand,
-      20,
-      18
-    );
+        return;
 
+      }
 
-  if (
-    !indexOpen ||
-    !middleOpen ||
-    !ringClosed ||
-    !pinkyClosed
-  ) {
+      const text =
+        lastRecognizedText ||
+        translations[currentLanguage].waiting;
 
-    return false;
+      const speech =
+        new SpeechSynthesisUtterance(text);
 
-  }
+      speech.lang =
+        currentLanguage === "ta"
+          ? "ta-IN"
+          : "en-US";
 
+      speech.rate = 0.9;
 
-  // Index and middle should
-  // be relatively close/crossed.
+      window.speechSynthesis.cancel();
 
-  const fingerDistance =
-    distance(
-      hand[8],
-      hand[12]
-    );
+      window.speechSynthesis.speak(speech);
 
+    }
 
-  return (
-    fingerDistance < 0.13
-  );
 
-}
+    // Initial language
+    changeLanguage();
 
-
-
-// ============================================================
-// STOP
-// ============================================================
-
-function detectStop(handsArray) {
-
-  if (
-    handsArray.length !== 2
-  ) {
-
-    return false;
-
-  }
-
-
-  const h1 =
-    handsArray[0];
-
-  const h2 =
-    handsArray[1];
-
-
-  if (
-    !isOpenHand(h1) ||
-    !isOpenHand(h2)
-  ) {
-
-    return false;
-
-  }
-
-
-  const distanceBetweenHands =
-    Math.abs(
-      h1[0].x -
-      h2[0].x
-    );
-
-
-  // Hands should be relatively close.
-
-  return (
-    distanceBetweenHands < 0.35
-  );
-
-}
-
-
-
-// ============================================================
-// MAIN GESTURE DETECTOR
-// ============================================================
-
-function detectGesture(handsArray) {
-
-
-  const hand =
-    handsArray[0];
-
-
-  // 1. YES
-
-  if (
-    detectYes(hand)
-  ) {
-
-    return "YES";
-
-  }
-
-
-  // 2. ALL DONE
-
-  if (
-    detectAllDone(handsArray)
-  ) {
-
-    return "ALL DONE";
-
-  }
-
-
-  // 3. HELP
-
-  if (
-    detectHelp(handsArray)
-  ) {
-
-    return "HELP";
-
-  }
-
-
-  // 4. MORE
-
-  if (
-    detectMore(handsArray)
-  ) {
-
-    return "MORE";
-
-  }
-
-
-  // 5. NO
-
-  if (
-    detectNo(hand)
-  ) {
-
-    return "NO";
-
-  }
-
-
-  // 6. THANK YOU
-
-  if (
-    detectThankYou(hand)
-  ) {
-
-    return "THANK YOU";
-
-  }
-
-
-  // 7. PLEASE
-
-  if (
-    detectPlease(hand)
-  ) {
-
-    return "PLEASE";
-
-  }
-
-
-  // 8. STOP
-
-  if (
-    detectStop(handsArray)
-  ) {
-
-    return "STOP";
-
-  }
-
-
-  return "UNKNOWN";
-
-}
-
-
-
-// ============================================================
-// TEXT TO SPEECH
-// ============================================================
-
-function speakGesture(gesture) {
-
-  const now =
-    Date.now();
-
-
-  if (
-    now - lastSpeechTime <
-    1800
-  ) {
-
-    return;
-
-  }
-
-
-  lastSpeechTime =
-    now;
-
-
-  if (
-    !("speechSynthesis" in window)
-  ) {
-
-    return;
-
-  }
-
-
-  window.speechSynthesis.cancel();
-
-
-  const speech =
-    new SpeechSynthesisUtterance(
-      gesture
-    );
-
-
-  speech.lang =
-    "en-US";
-
-
-  speech.rate =
-    0.9;
-
-
-  speech.pitch =
-    1;
-
-
-  window.speechSynthesis.speak(
-    speech
-  );
-
-}
-
-
-
-// ============================================================
-// TEST VOICE
-// ============================================================
-
-function testVoice() {
-
-  if (
-    !("speechSynthesis" in window)
-  ) {
-
-    alert(
-      "Speech synthesis is not supported."
-    );
-
-    return;
-
-  }
-
-
-  const speech =
-    new SpeechSynthesisUtterance(
-      "Voice system is working"
-    );
-
-
-  speech.lang =
-    "en-US"
-  window.speechSynthesis.speak(
-    speech
-  );
-
-}
-
-</script>
+  </script>
 
 </body>
 </html>
