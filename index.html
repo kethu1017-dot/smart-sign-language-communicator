@@ -158,14 +158,21 @@ async function startCamera() {
 
   try {
 
+    // Stop old camera if already running
+    if (video.srcObject) {
+      video.srcObject.getTracks().forEach(track => track.stop());
+    }
+
     const stream = await navigator.mediaDevices.getUserMedia({
       video: {
-      facingMode: currentCamera
+        facingMode: currentCamera
       },
       audio: false
     });
 
     video.srcObject = stream;
+
+    await video.play();
 
     status.innerText = "Camera working ✅";
 
@@ -176,9 +183,9 @@ async function startCamera() {
 
   } catch (error) {
 
-    status.innerText = "Camera permission/error ❌";
+    console.log("Camera Error:", error);
 
-    console.log(error);
+    status.innerText = "Camera permission/error ❌";
 
   }
 
