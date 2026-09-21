@@ -94,21 +94,53 @@ hands.setOptions({
   minTrackingConfidence: 0.5
 });
 
+function detectYes(landmarks) {
+
+  const thumbTip = landmarks[4];
+  const thumbIP = landmarks[3];
+
+  const indexTip = landmarks[8];
+  const indexPIP = landmarks[6];
+
+  const middleTip = landmarks[12];
+  const middlePIP = landmarks[10];
+
+  const ringTip = landmarks[16];
+  const ringPIP = landmarks[14];
+
+  const pinkyTip = landmarks[20];
+  const pinkyPIP = landmarks[18];
+
+  const thumbUp = thumbTip.y < thumbIP.y;
+  const indexFolded = indexTip.y > indexPIP.y;
+  const middleFolded = middleTip.y > middlePIP.y;
+  const ringFolded = ringTip.y > ringPIP.y;
+  const pinkyFolded = pinkyTip.y > pinkyPIP.y;
+
+  return (
+    thumbUp &&
+    indexFolded &&
+    middleFolded &&
+    ringFolded &&
+    pinkyFolded
+  );
+}
+
 hands.onResults((results) => {
 
   if (
-    results.multiHandLandmarks &&
-    results.multiHandLandmarks.length > 0
-  ) {
+  results.multiHandLandmarks &&
+  results.multiHandLandmarks.length > 0
+) {
 
-    status.innerText = "Hand detected 🖐️";
+  const landmarks = results.multiHandLandmarks[0];
 
+  if (detectYes(landmarks)) {
+    status.innerText = "Yes 👍";
   } else {
-
-    status.innerText = "No hand detected";
-
+    status.innerText = "Hand detected 🖐️";
   }
-
+    
 });
 
 async function detectHands() {
