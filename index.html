@@ -64,6 +64,8 @@
     <br>
 
     <button onclick="startCamera()">Start Camera</button>
+    
+    <button onclick="switchCamera()">Switch Front / Back</button>
 
     <p id="status">Camera not started</p>
 
@@ -77,6 +79,7 @@ const video = document.getElementById("camera");
 const status = document.getElementById("status");
 
 let detecting = false;
+let currentCamera = "user";
 
 const hands = new Hands({
   locateFile: (file) => {
@@ -124,7 +127,9 @@ async function startCamera() {
   try {
 
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
+      video: {
+      facingMode: currentCamera
+      },
       audio: false
     });
 
@@ -146,7 +151,19 @@ async function startCamera() {
   }
 
 }
+async function switchCamera() {
 
+  currentCamera =
+    currentCamera === "user" ? "environment" : "user";
+
+  const oldStream = video.srcObject;
+
+  if (oldStream) {
+    oldStream.getTracks().forEach(track => track.stop());
+  }
+
+  await startCamera();
+}
 </script>
 </body>
 </html>
