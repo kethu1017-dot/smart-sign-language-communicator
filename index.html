@@ -1,129 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Smart Sign Language Communicator</title>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #f4f7ff;
-      margin: 0;
-      padding: 20px;
-    }
-
-    h1 {
-      color: #4f46e5;
-    }
-
-    .card {
-      background: white;
-      max-width: 700px;
-      margin: 30px auto;
-      padding: 25px;
-      border-radius: 18px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-
-    video {
-      width: 100%;
-      max-width: 500px;
-      border-radius: 15px;
-      background: black;
-    }
-
-    button {
-      margin: 10px;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 10px;
-      background: #4f46e5;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    #status {
-      font-size: 18px;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
 </head>
-
 <body>
+  <div class="container">
+    <h1>Smart Sign Language Communicator</h1>
 
-  <h1>Smart Sign Language Communicator</h1>
+    <div class="video-wrap">
+      <video id="webcam" autoplay playsinline muted></video>
+      <canvas id="output"></canvas>
+    </div>
 
-  <div class="card">
+    <div class="result-box">
+      <p class="label">Detected Sign</p>
+      <h2 id="result">Waiting...</h2>
+    </div>
 
-    <h2>Camera</h2>
-
-    <video id="camera" autoplay playsinline style="width:100%; max-width:600px; height:400px; background:#000; border-radius:12px; object-fit:cover;"></video>
-    <br>
-
-    <button onclick="startCamera()">Start Camera</button>
-    <button onclick="switchCamera()">Switch Front / Back</button>   
-    <p id="status">Camera not started</p>
-
+    <button id="startBtn">Start Camera</button>
   </div>
 
-  <script>
-
-    const video = document.getElementById("camera");
-    const status = document.getElementById("status");
-
-    async function startCamera() {
-
-      try {
-         video: {
-              facingMode: currentCamera
-         },
-          audio: false
-        });
-
-        video.srcObject = stream;
-
-        status.innerText = "Camera working ✅";
-
-      } catch (error) {
-
-        status.innerText = "Camera permission/error ❌";
-
-        console.log(error);
-      }
-    }
-
-    async function startCamera() {
-
-  try {
-
-    status.innerText = "Starting camera...";
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: currentCamera
-      },
-      audio: false
-    });
-
-    video.srcObject = stream;
-
-    video.style.display = "block";
-
-    await video.play();
-
-    status.innerText = "Camera working ✅";
-
-  } catch (error) {
-
-    console.log(error);
-
-    status.innerText = "Camera Error ❌ " + error.message;
-
-  }}
-
-  </script>
-
+  <script src="script.js"></script>
 </body>
 </html>
