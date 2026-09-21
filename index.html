@@ -6,7 +6,6 @@
 
   <title>Smart Sign Language Communicator</title>
 
-  <!-- MediaPipe Hands -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
   <style>
@@ -24,7 +23,6 @@
       color: white;
       padding: 20px;
       border-radius: 15px;
-      margin-bottom: 25px;
     }
 
     .card {
@@ -53,7 +51,6 @@
       background: #4f46e5;
       color: white;
       font-size: 16px;
-      cursor: pointer;
     }
 
     #status,
@@ -234,9 +231,11 @@
       if (!hands) {
 
         hands = new Hands({
+
           locateFile: (file) => {
             return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
           }
+
         });
 
         hands.setOptions({
@@ -259,8 +258,20 @@
             results.multiHandLandmarks.length > 0
           ) {
 
-            handStatus.innerText =
-              "✋ Hand Detected";
+            const landmarks =
+              results.multiHandLandmarks[0];
+
+            // YES gesture
+            if (detectYes(landmarks)) {
+
+              handStatus.innerText =
+                "👍 YES";
+
+            } else {
+
+              handStatus.innerText =
+                "✋ Hand Detected";
+            }
 
           } else {
 
@@ -283,7 +294,7 @@
 
 
     // =========================
-    // SEND CAMERA IMAGE
+    // DETECT HAND
     // =========================
 
     async function detectHand() {
@@ -300,9 +311,61 @@
         await hands.send({
           image: video
         });
+
       }
 
       requestAnimationFrame(detectHand);
+    }
+
+
+    // =========================
+    // YES GESTURE
+    // =========================
+
+    function detectYes(landmarks) {
+
+      const thumbTip = landmarks[4];
+      const thumbIP = landmarks[3];
+
+      const indexTip = landmarks[8];
+      const indexPIP = landmarks[6];
+
+      const middleTip = landmarks[12];
+      const middlePIP = landmarks[10];
+
+      const ringTip = landmarks[16];
+      const ringPIP = landmarks[14];
+
+      const pinkyTip = landmarks[20];
+      const pinkyPIP = landmarks[18];
+
+
+      // Thumb is up
+      const thumbUp =
+        thumbTip.y < thumbIP.y;
+
+
+      // Other fingers are folded
+      const indexFolded =
+        indexTip.y > indexPIP.y;
+
+      const middleFolded =
+        middleTip.y > middlePIP.y;
+
+      const ringFolded =
+        ringTip.y > ringPIP.y;
+
+      const pinkyFolded =
+        pinkyTip.y > pinkyPIP.y;
+
+
+      return (
+        thumbUp &&
+        indexFolded &&
+        middleFolded &&
+        ringFolded &&
+        pinkyFolded
+      );
     }
 
   </script>
