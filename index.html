@@ -1,725 +1,1010 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-  <title>Smart Sign Language Communicator</title>
+<title>Smart Sign Language Communicator</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+*{
+    box-sizing:border-box;
+}
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f3f5ff;
-      color: #333;
-    }
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#f3f5ff;
+    color:#333;
+}
 
-    header {
-      background: linear-gradient(135deg, #5145cd, #8b35e8);
-      color: white;
-      text-align: center;
-      padding: 25px 15px;
-    }
+header{
+    background:linear-gradient(135deg,#5438d5,#9135e8);
+    color:white;
+    padding:22px 15px;
+    text-align:center;
+}
 
-    header h1 {
-      margin: 0;
-      font-size: 24px;
-    }
+header h1{
+    margin:0;
+    font-size:34px;
+}
 
-    header p {
-      margin: 8px 0 0;
-      font-size: 13px;
-    }
+header p{
+    margin:10px 0 15px;
+    font-size:18px;
+}
 
-    .language-box {
-      margin-top: 15px;
-    }
+.language{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    font-size:20px;
+}
 
-    select {
-      padding: 9px 14px;
-      border-radius: 8px;
-      border: none;
-      font-size: 14px;
-    }
+.language select{
+    padding:10px 18px;
+    border-radius:10px;
+    border:none;
+    font-size:17px;
+}
 
-    .container {
-      width: 94%;
-      max-width: 700px;
-      margin: 28px auto;
-    }
+.container{
+    width:95%;
+    max-width:850px;
+    margin:25px auto;
+}
 
-    .card {
-      background: white;
-      border-radius: 15px;
-      padding: 22px;
-      margin-bottom: 18px;
-      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
-      text-align: center;
-    }
+.card{
+    background:white;
+    border-radius:25px;
+    padding:25px;
+    margin-bottom:25px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+    text-align:center;
+}
 
-    .card h2 {
-      color: #5145cd;
-      font-size: 19px;
-      margin-top: 0;
-    }
+.card h2{
+    color:#5540c5;
+    margin-top:0;
+    font-size:28px;
+}
 
-    .card p {
-      font-size: 14px;
-      color: #555;
-    }
+.description{
+    color:#666;
+    font-size:18px;
+    margin-bottom:20px;
+}
 
-    button {
-      border: none;
-      border-radius: 8px;
-      padding: 12px 18px;
-      margin: 5px;
-      background: linear-gradient(135deg, #5145cd, #743be2);
-      color: white;
-      cursor: pointer;
-      font-size: 14px;
-    }
+button{
+    border:none;
+    border-radius:12px;
+    padding:15px 25px;
+    margin:7px;
+    font-size:18px;
+    color:white;
+    background:linear-gradient(135deg,#5738d4,#8a3ce4);
+    cursor:pointer;
+}
 
-    button:hover {
-      opacity: 0.88;
-    }
+button:hover{
+    opacity:.9;
+}
 
-    .danger {
-      background: #dc3545;
-    }
+.stop{
+    background:#df3548;
+}
 
-    .success {
-      background: #198754;
-    }
+.speak{
+    background:#15965f;
+}
 
-    video {
-      width: 100%;
-      max-height: 330px;
-      background: #111;
-      border-radius: 12px;
-      margin-top: 12px;
-      display: none;
-    }
+.camera-box{
+    width:100%;
+    max-width:650px;
+    margin:20px auto;
+    background:#111;
+    border-radius:20px;
+    overflow:hidden;
+}
 
-    input[type="file"] {
-      width: 100%;
-      margin: 15px 0;
-    }
+video{
+    width:100%;
+    display:block;
+    max-height:500px;
+    object-fit:cover;
+}
 
-    input[type="text"] {
-      width: 100%;
-      padding: 13px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      font-size: 15px;
-      outline: none;
-    }
+.status{
+    background:#eef0ff;
+    border-radius:15px;
+    padding:18px;
+    margin-top:18px;
+    font-size:20px;
+}
 
-    .output {
-      background: #f1f2ff;
-      border-radius: 10px;
-      padding: 15px;
-      min-height: 48px;
-      margin-top: 12px;
-      font-size: 17px;
-    }
+.result{
+    font-size:32px;
+    font-weight:bold;
+    color:#503bc1;
+    min-height:45px;
+}
 
-    .gesture-display {
-      margin-top: 15px;
-      font-size: 22px;
-      font-weight: bold;
-      color: #5145cd;
-    }
+input[type=text]{
+    width:100%;
+    padding:18px;
+    border:2px solid #ddd;
+    border-radius:15px;
+    font-size:19px;
+    outline:none;
+}
 
-    .status {
-      font-size: 14px;
-      margin-top: 12px;
-      color: #555;
-    }
+input[type=file]{
+    width:100%;
+    padding:15px;
+    margin:10px 0;
+    font-size:16px;
+}
 
-    .footer {
-      text-align: center;
-      padding: 20px;
-      color: #777;
-      font-size: 12px;
-    }
+.sign-display{
+    font-size:30px;
+    font-weight:bold;
+    color:#503bc1;
+    margin-top:20px;
+    min-height:50px;
+}
 
-    .hidden {
-      display: none;
-    }
+.words{
+    text-align:left;
+    max-width:500px;
+    margin:auto;
+}
 
-    .sign-list {
-      text-align: left;
-      margin-top: 15px;
-      line-height: 1.8;
-      font-size: 14px;
-    }
-  </style>
+.words div{
+    font-size:19px;
+    padding:9px;
+}
+
+.small{
+    color:#777;
+    font-size:14px;
+}
+
+footer{
+    text-align:center;
+    color:#777;
+    padding:30px;
+}
+</style>
 </head>
 
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <h1 id="appTitle">🤟 Smart Sign Language Communicator</h1>
-    <p id="appSubtitle">AI Based Communication System</p>
+<header>
+    <h1>Communicator</h1>
+    <p>AI Based Communication System</p>
 
-    <div class="language-box">
-      <label for="languageSelect">🌐 Language:</label>
-
-      <select id="languageSelect" onchange="changeLanguage()">
-        <option value="en">English</option>
-        <option value="ta">தமிழ்</option>
-      </select>
+    <div class="language">
+        🌐 Language:
+        <select id="language">
+            <option value="en-US">English</option>
+            <option value="ta-IN">Tamil</option>
+        </select>
     </div>
-  </header>
+</header>
 
 
-  <main class="container">
+<div class="container">
 
-    <!-- CAMERA CARD -->
-    <section class="card">
+<!-- CAMERA -->
+<div class="card">
 
-      <h2 id="cameraTitle">📷 Sign Detection</h2>
+<h2>📷 Sign Detection</h2>
 
-      <p id="cameraDescription">
-        Show your hand sign in front of the camera.
-      </p>
+<div class="description">
+Show your hand sign in front of the camera.
+</div>
 
-      <button onclick="startCamera()" id="startButton">
-        ▶ Start Detection
-      </button>
+<button onclick="startCamera()">
+▶ Start Detection
+</button>
 
-      <button onclick="switchCamera()" id="switchButton">
-        🔄 Switch Camera
-      </button>
+<button onclick="switchCamera()">
+🔄 Switch Camera
+</button>
 
-      <button onclick="stopCamera()" class="danger" id="stopButton">
-        ⛔ Stop Camera
-      </button>
+<button class="stop" onclick="stopCamera()">
+⛔ Stop Camera
+</button>
 
-      <video id="cameraVideo" autoplay playsinline></video>
+<div class="camera-box">
+    <video id="camera"
+           autoplay
+           muted
+           playsinline>
+    </video>
+</div>
 
-      <div class="status" id="cameraStatus">
-        Camera is not started.
-      </div>
+<div class="status" id="cameraStatus">
+Camera not started.
+</div>
 
-      <div class="output" id="cameraResult">
-        Show your hand in front of camera
-      </div>
+<div class="status">
+Detected Sign:
+<div class="result" id="recognized">
+Waiting for sign...
+</div>
+</div>
 
-    </section>
-
-
-    <!-- UPLOAD VIDEO CARD -->
-    <section class="card">
-
-      <h2 id="uploadTitle">📹 Upload Sign Language Video</h2>
-
-      <p id="uploadDescription">
-        Upload a sign language video to recognize the gesture.
-      </p>
-
-      <input type="file" id="videoFile" accept="video/*" />
-
-      <button onclick="processVideo()" id="processButton">
-        ▶ Process Video
-      </button>
-
-      <div class="output" id="uploadResult">
-        No video processed yet.
-      </div>
-
-    </section>
+</div>
 
 
-    <!-- TEXT TO SIGN CARD -->
-    <section class="card">
+<!-- VIDEO UPLOAD -->
+<div class="card">
 
-      <h2 id="textSignTitle">✍️ Text to Sign Language</h2>
+<h2>📤 Upload Sign Language Video</h2>
 
-      <p id="textSignDescription">
-        Type a word to see the sign language gesture.
-      </p>
+<div class="description">
+Upload a sign language video to recognize the gesture.
+</div>
 
-      <input
-        type="text"
-        id="wordInput"
-        placeholder="Type a word..."
-      />
+<input type="file"
+       id="videoFile"
+       accept="video/*">
 
-      <button onclick="showSign()" id="showSignButton">
-        🤟 Show Sign
-      </button>
+<button onclick="processVideo()">
+▶ Process Video
+</button>
 
-      <div class="gesture-display" id="signOutput">
-        👋 Hello
-      </div>
+<div class="camera-box">
+    <video id="uploadVideo"
+           controls
+           muted
+           playsinline>
+    </video>
+</div>
 
-    </section>
+<div class="status" id="videoStatus">
+No video processed yet.
+</div>
+
+</div>
 
 
-    <!-- RECOGNIZED TEXT CARD -->
-    <section class="card">
+<!-- TEXT TO SIGN -->
+<div class="card">
 
-      <h2 id="recognizedTitle">📝 Recognized Text</h2>
+<h2>✍️ Text to Sign Language</h2>
 
-      <div class="output" id="recognizedText">
+<div class="description">
+Type a supported word to see the sign representation.
+</div>
+
+<input
+    type="text"
+    id="textInput"
+    placeholder="Type a word..."
+>
+
+<button onclick="showSign()">
+🤟 Show Sign
+</button>
+
+<div class="sign-display" id="signDisplay">
+</div>
+
+</div>
+
+
+<!-- RECOGNIZED TEXT -->
+<div class="card">
+
+<h2>📝 Recognized Text</h2>
+
+<div class="status">
+    <div class="result" id="finalText">
         Waiting for sign...
-      </div>
+    </div>
+</div>
 
-      <button onclick="speakText()" class="success" id="speakButton">
-        🔊 Speak
-      </button>
+<button class="speak"
+        onclick="speakText()">
+🔊 Speak
+</button>
 
-    </section>
+</div>
 
 
-    <!-- SUPPORTED SIGNS -->
-    <section class="card">
+<!-- SUPPORTED WORDS -->
+<div class="card">
 
-      <h2 id="supportedTitle">🤟 Supported Sign Words</h2>
+<h2>🤟 Supported Sign Words</h2>
 
-      <div class="sign-list" id="supportedSigns">
-        👍 YES<br>
-        🤞 NO<br>
-        ✋ ALL DONE<br>
-        👍🖐️ HELP<br>
-        🖐️ PLEASE<br>
-        🤜🤛 MORE<br>
-        🙏 THANK YOU<br>
-        ✋ STOP
-      </div>
+<div class="words">
 
-    </section>
+<div>👍 <b>YES</b> — Thumb Up</div>
+<div>✌️ <b>NO</b> — Victory</div>
+<div>✋ <b>PLEASE</b> — Open Palm</div>
+<div>✊ <b>STOP</b> — Closed Fist</div>
+<div>☝️ <b>MORE</b> — Pointing Up</div>
+<div>🤟 <b>HELP</b> — I Love You gesture</div>
 
-  </main>
+</div>
 
+<p class="small">
+Keep your hand clearly visible in good lighting.
+</p>
 
-  <div class="footer">
-    Smart Sign Language Communicator © 2026
-  </div>
+</div>
 
+</div>
 
 
-  <script>
+<footer>
+Smart Sign Language Communicator © 2026
+</footer>
 
-    // =====================================================
-    // LANGUAGE DATA
-    // =====================================================
 
-    const translations = {
+<script type="module">
 
-      en: {
-        appTitle: "🤟 Smart Sign Language Communicator",
-        appSubtitle: "AI Based Communication System",
+import {
+    GestureRecognizer,
+    FilesetResolver
+} from
+"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
 
-        cameraTitle: "📷 Sign Detection",
-        cameraDescription: "Show your hand sign in front of the camera.",
 
-        startButton: "▶ Start Detection",
-        switchButton: "🔄 Switch Camera",
-        stopButton: "⛔ Stop Camera",
+/* -----------------------------
+   GLOBAL VARIABLES
+----------------------------- */
 
-        cameraNotStarted: "Camera is not started.",
-        cameraStarted: "Camera started successfully.",
-        cameraStopped: "Camera stopped.",
-        cameraError: "Camera permission denied or unavailable.",
-        showHand: "Show your hand in front of camera",
+let gestureRecognizer = null;
 
-        uploadTitle: "📹 Upload Sign Language Video",
-        uploadDescription: "Upload a sign language video to recognize the gesture.",
-        processButton: "▶ Process Video",
-        noVideo: "Please select a video first.",
-        videoProcessed: "Video selected. Gesture processing can be connected here.",
+let cameraStream = null;
 
-        textSignTitle: "✍️ Text to Sign Language",
-        textSignDescription: "Type a word to see the sign language gesture.",
-        showSignButton: "🤟 Show Sign",
-        typeWord: "Please type a word.",
+let currentFacingMode = "user";
 
-        recognizedTitle: "📝 Recognized Text",
-        waiting: "Waiting for sign...",
-        speakButton: "🔊 Speak",
+let cameraRunning = false;
 
-        supportedTitle: "🤟 Supported Sign Words",
+let lastVideoTime = -1;
 
-        hello: "👋 Hello",
-        unknownWord: "Gesture image is not available for this word.",
+let lastDetectedGesture = "";
 
-        signs:
-          "👍 YES<br>" +
-          "🤞 NO<br>" +
-          "✋ ALL DONE<br>" +
-          "👍🖐️ HELP<br>" +
-          "🖐️ PLEASE<br>" +
-          "🤜🤛 MORE<br>" +
-          "🙏 THANK YOU<br>" +
-          "✋ STOP"
-      },
+let stableGesture = "";
 
-      ta: {
-        appTitle: "🤟 சைகை மொழி தொடர்பு அமைப்பு",
-        appSubtitle: "AI அடிப்படையிலான தொடர்பு அமைப்பு",
+let stableCount = 0;
 
-        cameraTitle: "📷 சைகை கண்டறிதல்",
-        cameraDescription: "கேமரா முன் உங்கள் கை சைகையை காட்டுங்கள்.",
 
-        startButton: "▶ கண்டறிதலை தொடங்கு",
-        switchButton: "🔄 கேமராவை மாற்று",
-        stopButton: "⛔ கேமராவை நிறுத்து",
+/* -----------------------------
+   ELEMENTS
+----------------------------- */
 
-        cameraNotStarted: "கேமரா தொடங்கப்படவில்லை.",
-        cameraStarted: "கேமரா வெற்றிகரமாக தொடங்கப்பட்டது.",
-        cameraStopped: "கேமரா நிறுத்தப்பட்டது.",
-        cameraError: "கேமரா அனுமதி மறுக்கப்பட்டது அல்லது கிடைக்கவில்லை.",
-        showHand: "கேமரா முன் உங்கள் கையை காட்டுங்கள்",
+const camera =
+    document.getElementById("camera");
 
-        uploadTitle: "📹 சைகை மொழி வீடியோவை பதிவேற்றவும்",
-        uploadDescription: "சைகையை கண்டறிய வீடியோவை பதிவேற்றவும்.",
-        processButton: "▶ வீடியோவை செயலாக்கு",
-        noVideo: "முதலில் ஒரு வீடியோவை தேர்வு செய்யவும்.",
-        videoProcessed: "வீடியோ தேர்வு செய்யப்பட்டது. Gesture processing இங்கே இணைக்கலாம்.",
+const recognized =
+    document.getElementById("recognized");
 
-        textSignTitle: "✍️ உரையிலிருந்து சைகை மொழி",
-        textSignDescription: "சைகையை பார்க்க ஒரு வார்த்தையை உள்ளிடவும்.",
-        showSignButton: "🤟 சைகையை காட்டு",
-        typeWord: "தயவுசெய்து ஒரு வார்த்தையை உள்ளிடவும்.",
+const finalText =
+    document.getElementById("finalText");
 
-        recognizedTitle: "📝 கண்டறியப்பட்ட உரை",
-        waiting: "சைகைக்காக காத்திருக்கிறது...",
-        speakButton: "🔊 ஒலி எழுப்பு",
+const cameraStatus =
+    document.getElementById("cameraStatus");
 
-        supportedTitle: "🤟 ஆதரிக்கப்படும் சைகை வார்த்தைகள்",
+const uploadVideo =
+    document.getElementById("uploadVideo");
 
-        hello: "👋 வணக்கம்",
-        unknownWord: "இந்த வார்த்தைக்கான சைகை படம் இல்லை.",
+const videoStatus =
+    document.getElementById("videoStatus");
 
-        signs:
-          "👍 ஆம் / YES<br>" +
-          "🤞 இல்லை / NO<br>" +
-          "✋ முடிந்தது / ALL DONE<br>" +
-          "👍🖐️ உதவி / HELP<br>" +
-          "🖐️ தயவு செய்து / PLEASE<br>" +
-          "🤜🤛 இன்னும் / MORE<br>" +
-          "🙏 நன்றி / THANK YOU<br>" +
-          "✋ நிறுத்து / STOP"
-      }
 
-    };
+/* -----------------------------
+   SIGN MAPPING
+----------------------------- */
 
+const gestureMap = {
 
-    let currentLanguage = "en";
-    let currentStream = null;
-    let currentCamera = "user";
-    let lastRecognizedText = "";
-
-
-    // =====================================================
-    // LANGUAGE CHANGE
-    // =====================================================
-
-    function changeLanguage() {
-
-      currentLanguage =
-        document.getElementById("languageSelect").value;
-
-      const t = translations[currentLanguage];
-
-      document.getElementById("appTitle").textContent =
-        t.appTitle;
-
-      document.getElementById("appSubtitle").textContent =
-        t.appSubtitle;
-
-      document.getElementById("cameraTitle").textContent =
-        t.cameraTitle;
-
-      document.getElementById("cameraDescription").textContent =
-        t.cameraDescription;
-
-      document.getElementById("startButton").textContent =
-        t.startButton;
-
-      document.getElementById("switchButton").textContent =
-        t.switchButton;
-
-      document.getElementById("stopButton").textContent =
-        t.stopButton;
-
-      document.getElementById("uploadTitle").textContent =
-        t.uploadTitle;
-
-      document.getElementById("uploadDescription").textContent =
-        t.uploadDescription;
-
-      document.getElementById("processButton").textContent =
-        t.processButton;
-
-      document.getElementById("textSignTitle").textContent =
-        t.textSignTitle;
-
-      document.getElementById("textSignDescription").textContent =
-        t.textSignDescription;
-
-      document.getElementById("showSignButton").textContent =
-        t.showSignButton;
-
-      document.getElementById("recognizedTitle").textContent =
-        t.recognizedTitle;
-
-      document.getElementById("speakButton").textContent =
-        t.speakButton;
-
-      document.getElementById("supportedTitle").textContent =
-        t.supportedTitle;
-
-      document.getElementById("supportedSigns").innerHTML =
-        t.signs;
-
-      document.getElementById("cameraStatus").textContent =
-        t.cameraNotStarted;
-
-      document.getElementById("cameraResult").textContent =
-        t.showHand;
-
-      document.getElementById("recognizedText").textContent =
-        t.waiting;
-
-      document.getElementById("signOutput").textContent =
-        t.hello;
-
-      document.getElementById("wordInput").placeholder =
-        currentLanguage === "ta"
-          ? "ஒரு வார்த்தையை உள்ளிடவும்..."
-          : "Type a word...";
-
+    "Thumb_Up": {
+        word:"YES",
+        emoji:"👍"
+    },
+
+    "Victory": {
+        word:"NO",
+        emoji:"✌️"
+    },
+
+    "Open_Palm": {
+        word:"PLEASE",
+        emoji:"✋"
+    },
+
+    "Closed_Fist": {
+        word:"STOP",
+        emoji:"✊"
+    },
+
+    "Pointing_Up": {
+        word:"MORE",
+        emoji:"☝️"
+    },
+
+    "ILoveYou": {
+        word:"HELP",
+        emoji:"🤟"
     }
 
+};
 
-    // =====================================================
-    // CAMERA FUNCTIONS
-    // =====================================================
 
-    async function startCamera() {
+/* -----------------------------
+   LOAD AI MODEL
+----------------------------- */
 
-      stopCamera();
+async function loadAI(){
 
-      const t = translations[currentLanguage];
+    cameraStatus.innerText =
+        "Loading AI hand gesture model...";
 
-      try {
+    try{
 
-        currentStream =
-          await navigator.mediaDevices.getUserMedia({
+        const vision =
+            await FilesetResolver.forVisionTasks(
+                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+            );
 
-            video: {
-              facingMode: currentCamera
-            },
+        gestureRecognizer =
+            await GestureRecognizer.createFromOptions(
+                vision,
+                {
+                    baseOptions:{
+                        modelAssetPath:
+                        "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task"
+                    },
 
-            audio: false
+                    runningMode:"VIDEO",
 
-          });
+                    numHands:1
+                }
+            );
 
-        const video =
-          document.getElementById("cameraVideo");
+        cameraStatus.innerText =
+            "AI model loaded. Start the camera.";
 
-        video.srcObject = currentStream;
-
-        video.style.display = "block";
-
-        document.getElementById("cameraStatus").textContent =
-          t.cameraStarted;
-
-        document.getElementById("cameraResult").textContent =
-          t.showHand;
-
-      } catch (error) {
+    }
+    catch(error){
 
         console.error(error);
 
-        document.getElementById("cameraStatus").textContent =
-          t.cameraError;
-
-      }
+        cameraStatus.innerText =
+            "❌ AI model failed to load. Check internet connection.";
 
     }
 
+}
 
-    function switchCamera() {
 
-      currentCamera =
-        currentCamera === "user"
-          ? "environment"
-          : "user";
+/* -----------------------------
+   START CAMERA
+----------------------------- */
 
-      startCamera();
+window.startCamera = async function(){
 
+    if(!gestureRecognizer){
+
+        cameraStatus.innerText =
+            "Please wait. AI model is loading...";
+
+        return;
     }
 
+    try{
 
-    function stopCamera() {
+        stopCamera();
 
-      if (currentStream) {
+        cameraStream =
+            await navigator.mediaDevices.getUserMedia({
 
-        currentStream.getTracks().forEach(
-          track => track.stop()
+                video:{
+                    facingMode:{
+                        ideal:currentFacingMode
+                    },
+
+                    width:{
+                        ideal:1280
+                    },
+
+                    height:{
+                        ideal:720
+                    }
+                },
+
+                audio:false
+
+            });
+
+        camera.srcObject =
+            cameraStream;
+
+        cameraRunning = true;
+
+        cameraStatus.innerText =
+            "✅ Camera started successfully. Show your hand.";
+
+        requestAnimationFrame(
+            detectCamera
         );
 
-        currentStream = null;
+    }
+    catch(error){
 
-      }
+        console.error(error);
 
-      const video =
-        document.getElementById("cameraVideo");
-
-      video.srcObject = null;
-      video.style.display = "none";
-
-      document.getElementById("cameraStatus").textContent =
-        translations[currentLanguage].cameraStopped;
+        cameraStatus.innerText =
+            "❌ Camera permission denied or camera unavailable.";
 
     }
 
+};
 
-    // =====================================================
-    // VIDEO UPLOAD
-    // =====================================================
 
-    function processVideo() {
+/* -----------------------------
+   CAMERA DETECTION
+----------------------------- */
 
-      const fileInput =
-        document.getElementById("videoFile");
+async function detectCamera(){
 
-      const result =
-        document.getElementById("uploadResult");
+    if(!cameraRunning){
+        return;
+    }
 
-      const t =
-        translations[currentLanguage];
+    if(
+        camera.readyState >= 2 &&
+        camera.currentTime !== lastVideoTime
+    ){
 
-      if (!fileInput.files.length) {
+        lastVideoTime =
+            camera.currentTime;
 
-        result.textContent =
-          t.noVideo;
+        try{
+
+            const result =
+                gestureRecognizer.recognizeForVideo(
+                    camera,
+                    performance.now()
+                );
+
+            handleResult(result);
+
+        }
+        catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    requestAnimationFrame(
+        detectCamera
+    );
+
+}
+
+
+/* -----------------------------
+   HANDLE AI RESULT
+----------------------------- */
+
+function handleResult(result){
+
+    if(
+        !result ||
+        !result.gestures ||
+        result.gestures.length === 0
+    ){
+
+        recognized.innerText =
+            "No sign detected";
+
+        return;
+    }
+
+    const topGesture =
+        result.gestures[0][0];
+
+    if(!topGesture){
+        return;
+    }
+
+    const gestureName =
+        topGesture.categoryName;
+
+    const confidence =
+        topGesture.score;
+
+    if(confidence < 0.55){
+
+        recognized.innerText =
+            "Show hand clearly";
+
+        return;
+    }
+
+    if(!gestureMap[gestureName]){
+
+        recognized.innerText =
+            "Gesture detected";
+
+        return;
+    }
+
+    const sign =
+        gestureMap[gestureName];
+
+    /* stability check */
+
+    if(lastDetectedGesture === sign.word){
+
+        stableCount++;
+
+    }
+    else{
+
+        lastDetectedGesture =
+            sign.word;
+
+        stableCount = 0;
+
+    }
+
+    recognized.innerText =
+        sign.emoji + " " +
+        sign.word;
+
+    /*
+       Require several consecutive frames
+       before updating final text.
+    */
+
+    if(stableCount >= 5){
+
+        if(stableGesture !== sign.word){
+
+            stableGesture =
+                sign.word;
+
+            finalText.innerText =
+                sign.word;
+
+            /*
+               Reset so same sign can be
+               detected again later.
+            */
+
+            stableCount = 0;
+
+        }
+
+    }
+
+}
+
+
+/* -----------------------------
+   STOP CAMERA
+----------------------------- */
+
+window.stopCamera = function(){
+
+    cameraRunning = false;
+
+    if(cameraStream){
+
+        cameraStream
+            .getTracks()
+            .forEach(track =>
+                track.stop()
+            );
+
+        cameraStream = null;
+
+    }
+
+    camera.srcObject = null;
+
+    cameraStatus.innerText =
+        "Camera stopped.";
+
+};
+
+
+/* -----------------------------
+   SWITCH CAMERA
+----------------------------- */
+
+window.switchCamera = async function(){
+
+    currentFacingMode =
+        currentFacingMode === "user"
+        ? "environment"
+        : "user";
+
+    if(cameraRunning){
+
+        await startCamera();
+
+    }
+
+};
+
+
+/* -----------------------------
+   VIDEO UPLOAD
+----------------------------- */
+
+window.processVideo = function(){
+
+    const file =
+        document.getElementById("videoFile")
+        .files[0];
+
+    if(!file){
+
+        videoStatus.innerText =
+            "❌ Please choose a video first.";
 
         return;
 
-      }
+    }
 
-      result.textContent =
-        t.videoProcessed;
+    const url =
+        URL.createObjectURL(file);
+
+    uploadVideo.src = url;
+
+    uploadVideo.onloadedmetadata = async () => {
+
+        videoStatus.innerText =
+            "▶ Video ready. Playing and detecting signs...";
+
+        try{
+
+            await uploadVideo.play();
+
+            detectUploadedVideo();
+
+        }
+        catch(error){
+
+            videoStatus.innerText =
+                "❌ Could not play video.";
+
+        }
+
+    };
+
+};
+
+
+/* -----------------------------
+   UPLOADED VIDEO DETECTION
+----------------------------- */
+
+async function detectUploadedVideo(){
+
+    if(uploadVideo.paused ||
+       uploadVideo.ended){
+
+        if(uploadVideo.ended){
+
+            videoStatus.innerText =
+                "✅ Video processing completed.";
+
+        }
+
+        return;
+    }
+
+    try{
+
+        const result =
+            gestureRecognizer.recognizeForVideo(
+                uploadVideo,
+                performance.now()
+            );
+
+        handleResult(result);
+
+    }
+    catch(error){
+
+        console.error(error);
 
     }
 
+    requestAnimationFrame(
+        detectUploadedVideo
+    );
 
-    // =====================================================
-    // TEXT TO SIGN
-    // =====================================================
+}
 
-    function showSign() {
 
-      const word =
-        document.getElementById("wordInput")
+/* -----------------------------
+   TEXT TO SIGN
+----------------------------- */
+
+const textSigns = {
+
+    hello:{
+        emoji:"👋",
+        text:"HELLO"
+    },
+
+    yes:{
+        emoji:"👍",
+        text:"YES"
+    },
+
+    no:{
+        emoji:"✌️",
+        text:"NO"
+    },
+
+    please:{
+        emoji:"✋",
+        text:"PLEASE"
+    },
+
+    stop:{
+        emoji:"✊",
+        text:"STOP"
+    },
+
+    more:{
+        emoji:"☝️",
+        text:"MORE"
+    },
+
+    help:{
+        emoji:"🤟",
+        text:"HELP"
+    },
+
+    thankyou:{
+        emoji:"🙏",
+        text:"THANK YOU"
+    },
+
+    "thank you":{
+        emoji:"🙏",
+        text:"THANK YOU"
+    }
+
+};
+
+
+window.showSign = function(){
+
+    const value =
+        document.getElementById("textInput")
         .value
         .trim()
         .toLowerCase();
 
-      const output =
-        document.getElementById("signOutput");
+    const display =
+        document.getElementById("signDisplay");
 
-      const t =
-        translations[currentLanguage];
+    if(!value){
 
-      if (!word) {
-
-        output.textContent =
-          t.typeWord;
+        display.innerText =
+            "Please type a word.";
 
         return;
 
-      }
+    }
 
-      const signs = {
+    const sign =
+        textSigns[value];
 
-        hello: currentLanguage === "ta"
-          ? "👋 வணக்கம்"
-          : "👋 Hello",
+    if(sign){
 
-        yes: "👍 YES / ஆம்",
+        display.innerText =
+            sign.emoji + " " + sign.text;
 
-        no: "🤞 NO / இல்லை",
+    }
+    else{
 
-        "all done": "✋ ALL DONE / முடிந்தது",
-
-        help: "👍🖐️ HELP / உதவி",
-
-        please: "🖐️ PLEASE / தயவு செய்து",
-
-        more: "🤜🤛 MORE / இன்னும்",
-
-        "thank you": "🙏 THANK YOU / நன்றி",
-
-        stop: "✋ STOP / நிறுத்து"
-
-      };
-
-      output.textContent =
-        signs[word] || t.unknownWord;
+        display.innerText =
+            "❓ Sign not available for: " +
+            value;
 
     }
 
-
-    // =====================================================
-    // RECOGNIZED TEXT + SPEECH
-    // =====================================================
-
-    function setRecognizedText(text) {
-
-      lastRecognizedText = text;
-
-      document.getElementById("recognizedText").textContent =
-        text;
-
-    }
+};
 
 
-    function speakText() {
+/* -----------------------------
+   SPEECH
+----------------------------- */
 
-      if (!("speechSynthesis" in window)) {
+window.speakText = function(){
 
-        alert("Speech synthesis is not supported in this browser.");
+    const text =
+        finalText.innerText.trim();
+
+    if(
+        !text ||
+        text === "Waiting for sign..."
+    ){
+
+        alert("No recognized sign to speak.");
 
         return;
 
-      }
+    }
 
-      const text =
-        lastRecognizedText ||
-        translations[currentLanguage].waiting;
+    if(!("speechSynthesis" in window)){
 
-      const speech =
+        alert(
+            "Speech synthesis is not supported."
+        );
+
+        return;
+
+    }
+
+    speechSynthesis.cancel();
+
+    const speech =
         new SpeechSynthesisUtterance(text);
 
-      speech.lang =
-        currentLanguage === "ta"
-          ? "ta-IN"
-          : "en-US";
+    speech.lang =
+        document.getElementById("language")
+        .value;
 
-      speech.rate = 0.9;
+    speech.rate = 0.9;
 
-      window.speechSynthesis.cancel();
+    speech.pitch = 1;
 
-      window.speechSynthesis.speak(speech);
+    speech.volume = 1;
+
+    speechSynthesis.speak(
+        speech
+    );
+
+};
+
+
+/* -----------------------------
+   ENTER KEY FOR TEXT
+----------------------------- */
+
+document
+.getElementById("textInput")
+.addEventListener(
+    "keydown",
+    function(event){
+
+        if(event.key === "Enter"){
+
+            showSign();
+
+        }
 
     }
+);
 
 
-    // Initial language
-    changeLanguage();
+/* -----------------------------
+   INITIALIZE AI
+----------------------------- */
 
-  </script>
+loadAI();
+
+</script>
 
 </body>
 </html>
