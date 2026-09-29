@@ -563,8 +563,7 @@ function drawPose(canvas,landmarks){
 }
 
 function drawFace(canvas,landmarks){
-  const c=canvas.getContext("2d");
-  drawConnectors(c,landmarks,FACEMESH_TESSELATION,{color:"#4cc9ff",lineWidth:1});
+  // Face detection runs in the background, but NO face mesh/landmarks are drawn.
 }
 
 /* -------------------- RESULTS -------------------- */
@@ -737,6 +736,12 @@ function basicGesture(lm){
   const extended=[index,middle,ring,pinky].filter(Boolean).length;
   const pinchIndex=dist(lm[4],lm[8])<0.12;
   const pinchMiddle=dist(lm[4],lm[12])<0.14;
+
+  // Thumbs-up = YES (useful for the uploaded-video demo).
+  const thumbUp = lm[4].y < lm[3].y && lm[4].y < lm[2].y &&
+                  !index && !middle && !ring && !pinky;
+  if(thumbUp)return "YES";
+
   if(pinchIndex&&pinchMiddle)return "NO";
   if(extended===0&&!thumbOpen)return "YES";
   if(extended>=4)return "STOP";
@@ -765,7 +770,7 @@ async function startCamera(){
 
     cameraRunning=true;
     document.getElementById("cameraStatus").textContent =
-      "Camera active • AI face/body/hand detection running.";
+      "Camera active • AI body/hand detection running. Face analysis is hidden.";
 
     requestAnimationFrame(cameraLoop);
   }catch(err){
@@ -839,40 +844,67 @@ async function analyzeUploadedVideo(){
     return;
   }
 
-  document.getElementById("videoStatus").textContent="AI analyzing video...";
+  const status=document.getElementById("videoStatus");
+  status.textContent="🧠 AI analyzing video...";
   lastDetected.video="";
   processingVideo=true;
 
-  video.pause();
-  video.currentTime=0;
-  await new Promise(resolve=>{
-    if(video.readyState>=2) resolve();
-    else video.onloadeddata=()=>resolve();
-  });
-  await video.play();
+  try{
+    if(video.readyState<2){
+      await new Promise(resolve=>video.addEventListener("loadeddata",resolve,{once:true}));
+    }
 
-  let frames=0;
-  const maxFrames=220;
+    const duration=Number.isFinite(video.duration) ? video.duration : 0;
+    const frameCount=Math.max(8,Math.min(30,Math.ceil(duration*5)||12));
+    const votes={};
 
-  while(!video.paused && !video.ended && frames<maxFrames){
-    try{
-      await hands.send({image:video});
-    }catch(e){}
-    frames++;
-    await new Promise(r=>setTimeout(r,60));
+    // Sample frames across the complete uploaded video.
+    for(let i=0;i<frameCount;i++){
+      if(duration>0){
+        const t=Math.min(Math.max(0.05,duration*(i/(frameCount-1||1))),Math.max(0.05,duration-0.05));
+        await new Promise(resolve=>{
+          const done=()=>resolve();
+          video.addEventListener("seeked",done,{once:true});
+          video.currentTime=t;
+        });
+      }
+
+      try{
+        lastDetected.video="";
+        await hands.send({image:video});
+        const g=lastDetected.video;
+        if(g) votes[g]=(votes[g]||0)+1;
+      }catch(e){}
+    }
+
+    // Pick the gesture seen in the largest number of sampled frames.
+    let detected="";
+    let best=0;
+    for(const [word,count] of Object.entries(votes)){
+      if(count>best){best=count;detected=word;}
+    }
+
+    // If a gesture is not recognized in the sampled frames, use the demo
+    // fallback only when a hand was actually detected.
+    if(!detected && Object.keys(votes).length===0){
+      detected="";
+    }
+
+    lastDetected.video=detected;
+    renderVideoOutput();
+
+    if(detected){
+      status.textContent=`✅ AI analysis completed — Detected: ${detected}`;
+    }else{
+      status.textContent="⚠️ Hand/sign not recognized. Please use a clear front-facing gesture.";
+      document.getElementById("videoGesture").textContent="Not recognized";
+      document.getElementById("videoTamil").textContent="அடையாளம் காணப்படவில்லை";
+    }
+  }finally{
+    processingVideo=false;
+    video.pause();
   }
-
-  video.pause();
-  processingVideo=false;
-
-  const detected=lastDetected.video || "YES";
-  lastDetected.video=detected;
-  renderVideoOutput();
-
-  document.getElementById("videoStatus").textContent=
-    "AI analysis completed. Detected: "+detected;
 }
-
 function renderVideoOutput(){
   const w=lastDetected.video;
   if(!w){
