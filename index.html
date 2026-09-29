@@ -191,6 +191,10 @@ textarea{
   .hero-visual{margin:25px auto 0}.home-new h2{font-size:32px}.home-flow{font-size:11px}
   .logo-big{margin-top:25px}.gesture-grid{grid-template-columns:repeat(2,1fr)}
 }
+
+.train-box{margin-top:16px;padding:15px;border:1px solid #dddff2;border-radius:15px;background:#fafaff;}
+.train-box h3{margin:0 0 6px;}
+.train-box select{width:100%;padding:11px;border:1px solid #d9dbef;border-radius:10px;background:white;color:#29275d;margin-top:8px;}
 </style>
 </head>
 
@@ -326,6 +330,17 @@ textarea{
           <button id="camTa" onclick="setPageLang('camera','ta')">தமிழ்</button>
         </div>
       </div>
+
+      <div class="train-box">
+        <h3>🧠 30-Word AI Training</h3>
+        <p class="small">For real camera recognition of all 30 words, teach the app each sign once. The landmark profile is saved in your browser.</p>
+        <select id="trainWord"></select>
+        <div class="controls">
+          <button class="btn" onclick="captureTrainingSample()">✋ Capture Gesture</button>
+          <button class="btn secondary" onclick="clearTraining()">♻️ Reset Training</button>
+        </div>
+        <div id="trainStatus" class="small">0 / 30 words trained.</div>
+      </div>
     </div>
   </div>
 </section>
@@ -400,16 +415,7 @@ textarea{
     <div class="card">
       <h2>🤟 Sign Gesture Guide</h2>
       <div id="gestureGuide" class="small">Type a sentence and click Convert to Sign.</div>
-      <div class="gesture-grid">
-        <div class="gesture" onclick="putWord('Hello')"><div class="hand">🫡</div>Hello</div>
-        <div class="gesture" onclick="putWord('Yes')"><div class="hand">👊</div>Yes</div>
-        <div class="gesture" onclick="putWord('No')"><div class="hand">🤏</div>No</div>
-        <div class="gesture" onclick="putWord('Thank You')"><div class="hand">🙏</div>Thank You</div>
-        <div class="gesture" onclick="putWord('Help')"><div class="hand">🆘</div>Help</div>
-        <div class="gesture" onclick="putWord('Stop')"><div class="hand">✋</div>Stop</div>
-        <div class="gesture" onclick="putWord('Water')"><div class="hand">💧</div>Water</div>
-        <div class="gesture" onclick="putWord('Love')"><div class="hand">❤️</div>Love</div>
-      </div>
+      <div id="allGestureGuide" class="gesture-grid"></div>
     </div>
   </div>
 </section>
@@ -619,6 +625,7 @@ function setStatus(id,text,ok){
 
 function updateHandResult(allHands){
   if(allHands.length){
+    currentLandmarks=allHands[0];
     setStatus("handStatus","✓ Detected",true);
     const gesture=recognizeGesture(allHands[0]);
     if(gesture){
@@ -633,43 +640,113 @@ function updateHandResult(allHands){
 
 /* -------------------- GESTURE RECOGNITION -------------------- */
 /*
-  Demo classifier:
-  FIST -> YES
-  OPEN PALM -> STOP
-  INDEX + MIDDLE -> NO
-  INDEX -> POINT
+  IMPORTANT:
+  MediaPipe gives hand landmarks, but it does not know the meaning of a sign.
+  This prototype therefore supports all 30 words through a browser-side
+  calibration system: capture one or more examples for each word, then the
+  app compares live landmarks with the saved profiles.
 */
-function dist(a,b){
-  return Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
+const TRAIN_KEY="smartSign30ProfilesV1";
+let trainingProfiles={};
+let currentLandmarks=null;
+
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z)}
+function fingerExtended(lm,tip,pip){return dist(lm[tip],lm[0]) > dist(lm[pip],lm[0])*1.12}
+
+function landmarkVector(lm){
+  if(!lm || lm.length<21) return null;
+  const base=lm[0];
+  let v=[];
+  for(const p of lm){
+    v.push(p.x-base.x,p.y-base.y,p.z-base.z);
+  }
+  const scale=Math.max(0.001, Math.hypot(v[0],v[1]));
+  // Normalize by hand size using distance wrist -> middle MCP.
+  const handSize=Math.max(0.001,dist(lm[0],lm[9]));
+  const out=[];
+  for(let i=0;i<v.length;i++) out.push(v[i]/handSize);
+  return out;
 }
 
-function fingerExtended(lm,tip,pip){
-  return dist(lm[tip],lm[0]) > dist(lm[pip],lm[0])*1.12;
+function vectorDistance(a,b){
+  if(!a||!b||a.length!==b.length) return Infinity;
+  let sum=0;
+  for(let i=0;i<a.length;i++){const d=a[i]-b[i];sum+=d*d;}
+  return Math.sqrt(sum/a.length);
 }
 
-function recognizeGesture(lm){
-  if(!lm || lm.length<21) return "";
+function loadTraining(){
+  try{trainingProfiles=JSON.parse(localStorage.getItem(TRAIN_KEY)||"{}");}
+  catch(e){trainingProfiles={};}
+  updateTrainingStatus();
+}
+function saveTraining(){localStorage.setItem(TRAIN_KEY,JSON.stringify(trainingProfiles));updateTrainingStatus();}
+function updateTrainingStatus(){
+  const n=Object.keys(trainingProfiles).filter(k=>trainingProfiles[k]?.length).length;
+  const el=document.getElementById("trainStatus");
+  if(el) el.textContent=`${n} / 30 words trained. ${n<30?"Select a word and capture its gesture.":"All 30 words trained — live recognition is ready."}`;
+}
+function initTrainingSelect(){
+  const sel=document.getElementById("trainWord");
+  if(!sel)return;
+  sel.innerHTML=Object.keys(words).filter(k=>k!=="ME").map(w=>`<option value="${w}">${w} — ${words[w].ta}</option>`).join("");
+  loadTraining();
+}
 
+function captureTrainingSample(){
+  if(!currentLandmarks){
+    document.getElementById("trainStatus").textContent="✋ Show one hand clearly in front of the camera first.";
+    return;
+  }
+  const word=document.getElementById("trainWord").value;
+  const vec=landmarkVector(currentLandmarks);
+  if(!vec)return;
+  if(!trainingProfiles[word])trainingProfiles[word]=[];
+  trainingProfiles[word].push(vec);
+  // Keep the last 5 samples so storage stays small.
+  if(trainingProfiles[word].length>5)trainingProfiles[word].shift();
+  saveTraining();
+  document.getElementById("trainStatus").textContent=`Saved ${word}. ${Object.keys(trainingProfiles).filter(k=>trainingProfiles[k]?.length).length} / 30 words trained.`;
+}
+function clearTraining(){
+  if(confirm("Reset all 30-word training samples?")){
+    trainingProfiles={};saveTraining();
+  }
+}
+
+function nearestTrainedGesture(lm){
+  const vec=landmarkVector(lm); if(!vec)return "";
+  let best="",bestD=Infinity;
+  for(const [word,samples] of Object.entries(trainingProfiles)){
+    for(const sample of samples||[]){
+      const d=vectorDistance(vec,sample);
+      if(d<bestD){bestD=d;best=word;}
+    }
+  }
+  // A loose threshold prevents random hands from being reported as a sign.
+  return bestD<0.34 ? best : "";
+}
+
+function basicGesture(lm){
+  if(!lm || lm.length<21)return "";
   const index=fingerExtended(lm,8,6);
   const middle=fingerExtended(lm,12,10);
   const ring=fingerExtended(lm,16,14);
   const pinky=fingerExtended(lm,20,18);
-
-  const thumbOpen = dist(lm[4],lm[5]) > dist(lm[3],lm[5])*1.12;
-
+  const thumbOpen=dist(lm[4],lm[5])>dist(lm[3],lm[5])*1.12;
   const extended=[index,middle,ring,pinky].filter(Boolean).length;
-
-  // Pinch-like No: index + middle extended/near thumb
-  const pinchIndex=dist(lm[4],lm[8]) < 0.12;
-  const pinchMiddle=dist(lm[4],lm[12]) < 0.14;
-  if(pinchIndex && pinchMiddle) return "NO";
-
-  if(extended===0 && !thumbOpen) return "YES";
-  if(extended>=4) return "STOP";
-  if(index && middle && !ring && !pinky) return "NO";
-  if(index && !middle && !ring && !pinky) return "POINT";
-
+  const pinchIndex=dist(lm[4],lm[8])<0.12;
+  const pinchMiddle=dist(lm[4],lm[12])<0.14;
+  if(pinchIndex&&pinchMiddle)return "NO";
+  if(extended===0&&!thumbOpen)return "YES";
+  if(extended>=4)return "STOP";
+  if(index&&middle&&!ring&&!pinky)return "NO";
   return "";
+}
+
+function recognizeGesture(lm){
+  // Prefer a user-trained 30-word profile; fallback to the built-in 3 demos.
+  return nearestTrainedGesture(lm) || basicGesture(lm);
 }
 
 /* -------------------- CAMERA -------------------- */
@@ -811,6 +888,13 @@ function renderVideoOutput(){
 }
 
 /* -------------------- TEXT / VOICE -------------------- */
+function build30WordGuide(){
+  const box=document.getElementById("allGestureGuide");
+  if(!box)return;
+  const entries=Object.keys(words).filter(k=>k!=="ME");
+  box.innerHTML=entries.map(w=>`<div class="gesture" onclick="putWord('${w.replace(/'/g,"\\'")}')"><div class="hand">${words[w].emoji}</div><b>${w}</b><div class="small">${words[w].ta}</div></div>`).join("");
+}
+
 function putWord(word){
   const box=document.getElementById("textInput");
   box.value += (box.value ? " " : "") + word;
