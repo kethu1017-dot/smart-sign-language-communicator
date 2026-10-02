@@ -1021,16 +1021,183 @@ footer{
 
 let language = "en";
 
-
 function changeLanguage(){
 
-    language =
-        document.getElementById(
-            "languageSelect"
-        ).value;
+    language = document.getElementById("languageSelect").value;
+
+    const tamil = language === "ta";
+
+    // Header
+    document.querySelector(".header-title h1").innerText =
+        tamil
+        ? "ஸ்மார்ட் சைகை மொழி தொடர்பாளர்"
+        : "Smart Sign Language Communicator";
+
+    document.querySelector(".header-title p").innerText =
+        tamil
+        ? "AI அடிப்படையிலான தொடர்பு அமைப்பு"
+        : "AI Based Communication System";
+
+    document.querySelector(".home-btn").innerText =
+        tamil ? "முகப்பு" : "Home";
+
+
+    // Sidebar
+    const nav = document.querySelectorAll(".nav-btn");
+
+    nav[0].innerText =
+        tamil ? "முகப்பு" : "Home";
+
+    nav[1].innerText =
+        tamil ? "நேரடி கேமரா கண்டறிதல்" : "Live Camera Detection";
+
+    nav[2].innerText =
+        tamil ? "வீடியோ பதிவேற்றம்" : "Video Upload";
+
+    nav[3].innerText =
+        tamil ? "உரை / குரல்" : "Text / Voice";
+
+
+    // Home
+    document.querySelector(".hero h2").innerText =
+        tamil
+        ? "ஸ்மார்ட் சைகை மொழி தொடர்பாளர்"
+        : "Smart Sign Language Communicator";
+
+    document.querySelector(".hero p").innerText =
+        tamil
+        ? "AI மூலம் சைகை மொழியை கண்டறிந்து தொடர்பு தடைகளை நீக்குகிறது."
+        : "Breaking communication barriers with AI-powered sign language recognition.";
+
+    document.querySelector(".hero-btn").innerText =
+        tamil ? "தொடர்பை தொடங்குங்கள்" : "Start Communication";
+
+
+    // Section titles
+    const titles =
+        document.querySelectorAll(".section-title");
+
+    if(titles[0]){
+        titles[0].innerText =
+            tamil ? "தொடர்பு முறைகள்" : "Communication Modes";
+    }
+
+    if(titles[1]){
+        titles[1].innerText =
+            tamil ? "இது எப்படி செயல்படுகிறது" : "How It Works";
+    }
+
+
+    // Communication cards
+    const cards =
+        document.querySelectorAll(".card");
+
+    if(cards[0]){
+        cards[0].querySelector("h3").innerText =
+            tamil
+            ? "நேரடி கேமரா கண்டறிதல்"
+            : "Live Camera Detection";
+
+        cards[0].querySelector("p").innerText =
+            tamil
+            ? "கேமரா மூலம் கை சைகைகளை கண்டறியலாம்."
+            : "Detect hand gestures using your camera.";
+    }
+
+    if(cards[1]){
+        cards[1].querySelector("h3").innerText =
+            tamil
+            ? "வீடியோ பதிவேற்றம்"
+            : "Video Upload";
+
+        cards[1].querySelector("p").innerText =
+            tamil
+            ? "சைகை மொழி வீடியோவை பதிவேற்றலாம்."
+            : "Upload a sign-language video for recognition.";
+    }
+
+    if(cards[2]){
+        cards[2].querySelector("h3").innerText =
+            tamil
+            ? "உரை / குரல்"
+            : "Text / Voice";
+
+        cards[2].querySelector("p").innerText =
+            tamil
+            ? "உரை அல்லது குரல் மூலம் சைகை படங்களை பார்க்கலாம்."
+            : "Enter text or voice to view sign gesture images.";
+    }
+
+
+    // Camera page
+    const pageBoxes =
+        document.querySelectorAll(".page-box");
+
+    if(pageBoxes[0]){
+
+        pageBoxes[0].querySelector("h2").innerText =
+            tamil
+            ? "நேரடி கேமரா கண்டறிதல்"
+            : "Live Camera Detection";
+
+        pageBoxes[0].querySelector("p").innerText =
+            tamil
+            ? "கை சைகைகளை கண்டறிய உங்கள் கேமராவைப் பயன்படுத்துங்கள்."
+            : "Use your camera to detect hand gestures.";
+
+        document.querySelector(".camera-controls .primary").innerText =
+            tamil ? "கேமராவை தொடங்கு" : "Start Camera";
+
+        document.querySelector(".camera-controls .secondary").innerText =
+            tamil ? "கேமராவை மாற்று" : "Switch Camera";
+
+        document.querySelector(".camera-controls .stop").innerText =
+            tamil ? "நிறுத்து" : "Stop";
+
+    }
+
+
+    // Text / Voice page
+    if(pageBoxes[2]){
+
+        pageBoxes[2].querySelector("h2").innerText =
+            tamil ? "உரை / குரல்" : "Text / Voice";
+
+        pageBoxes[2].querySelector("p").innerText =
+            tamil
+            ? "சைகை மொழி படங்களை பார்க்க உரையை உள்ளிடுங்கள்."
+            : "Enter a sentence to view the corresponding sign-language gesture images.";
+
+        document.getElementById("textInput").placeholder =
+            tamil
+            ? "உங்கள் வாக்கியத்தை இங்கே உள்ளிடுங்கள்..."
+            : "Type your sentence here...";
+
+        document.querySelector("#text button.primary").innerText =
+            tamil
+            ? "சைகை படங்களாக மாற்று"
+            : "Convert to Sign Images";
+
+        document.querySelector("#text button.secondary").innerText =
+            tamil ? "குரல் உள்ளீடு" : "Voice Input";
+
+        document.querySelector("#text button.stop").innerText =
+            tamil ? "அழி" : "Clear";
+
+    }
+
+
+    // Update current sign output
+    const textInput =
+        document.getElementById("textInput");
+
+    if(textInput && textInput.value.trim()){
+
+        convertTextToSigns(false);
+
+    }
 
 }
-
 
 /* =========================
    PAGE NAVIGATION
