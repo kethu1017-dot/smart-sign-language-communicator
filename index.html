@@ -255,10 +255,395 @@ function convertTextToSign(){
  if(!word){document.getElementById("signWord").textContent="Sign not found";document.getElementById("signTamil").textContent="30 gesture images-ல் உள்ள வார்த்தையை உள்ளிடவும்";document.getElementById("signImage").style.display="none";return}
  currentSignWord=word;refreshTextResult();
 }
-function refreshTextResult(){
- if(!currentSignWord)return;const lang=document.getElementById("textOutputLang").value;const g=gestureMap[currentSignWord];
- document.getElementById("signWord").textContent=currentSignWord;document.getElementById("signTamil").textContent=g.ta;
- const img=document.getElementById("signImage");img.src="sign-images/"+g.file;img.style.display="block";img.onerror=()=>{img.style.display="none"};
+/* =========================
+   YOUR 30 SIGN LANGUAGE IMAGES
+   ========================= */
+
+const gestureMap = {
+
+    AllDone: {
+        ta: "முடிந்தது",
+        file: "all-done.png"
+    },
+
+    Bad: {
+        ta: "மோசம்",
+        file: "bad.png"
+    },
+
+    Boy: {
+        ta: "சிறுவன்",
+        file: "boy.png"
+    },
+
+    Brother: {
+        ta: "சகோதரன்",
+        file: "brother.png"
+    },
+
+    College: {
+        ta: "கல்லூரி",
+        file: "college.png"
+    },
+
+    Drink: {
+        ta: "குடி",
+        file: "drink.png"
+    },
+
+    Eat: {
+        ta: "சாப்பிடு",
+        file: "eat.png"
+    },
+
+    Family: {
+        ta: "குடும்பம்",
+        file: "family.png"
+    },
+
+    Father: {
+        ta: "அப்பா",
+        file: "father.png"
+    },
+
+    Food: {
+        ta: "உணவு",
+        file: "food.png"
+    },
+
+    Friend: {
+        ta: "நண்பர்",
+        file: "friend.png"
+    },
+
+    Girl: {
+        ta: "சிறுமி",
+        file: "girl.png"
+    },
+
+    Good: {
+        ta: "நல்லது",
+        file: "good.png"
+    },
+
+    Hello: {
+        ta: "வணக்கம்",
+        file: "hello.png"
+    },
+
+    Help: {
+        ta: "உதவி",
+        file: "help.png"
+    },
+
+    Home: {
+        ta: "வீடு",
+        file: "home.png"
+    },
+
+    ILoveYou: {
+        ta: "நான் உன்னை நேசிக்கிறேன்",
+        file: "i-love-you.png"
+    },
+
+    Love: {
+        ta: "அன்பு",
+        file: "love.png"
+    },
+
+    More: {
+        ta: "மேலும்",
+        file: "more.png"
+    },
+
+    Mother: {
+        ta: "அம்மா",
+        file: "mother.png"
+    },
+
+    No: {
+        ta: "இல்லை",
+        file: "no.png"
+    },
+
+    Please: {
+        ta: "தயவு செய்து",
+        file: "please.png"
+    },
+
+    School: {
+        ta: "பள்ளி",
+        file: "school.png"
+    },
+
+    Sister: {
+        ta: "சகோதரி",
+        file: "sister.png"
+    },
+
+    Stop: {
+        ta: "நிறுத்து",
+        file: "stop.png"
+    },
+
+    ThankYou: {
+        ta: "நன்றி",
+        file: "thank-you.png"
+    },
+
+    Understand: {
+        ta: "புரிந்து கொள்",
+        file: "understand.png"
+    },
+
+    Wait: {
+        ta: "காத்திரு",
+        file: "wait.png"
+    },
+
+    Water: {
+        ta: "தண்ணீர்",
+        file: "water.png"
+    },
+
+    Yes: {
+        ta: "ஆம்",
+        file: "yes.png"
+    }
+
+};
+
+
+/* =========================
+   FIND SIGN
+   ========================= */
+
+function findGesture(text) {
+
+    const s = text.toLowerCase().trim();
+
+    const wordMap = {
+
+        "all done": "AllDone",
+        "done": "AllDone",
+        "முடிந்தது": "AllDone",
+
+        "bad": "Bad",
+        "மோசம்": "Bad",
+
+        "boy": "Boy",
+        "சிறுவன்": "Boy",
+
+        "brother": "Brother",
+        "சகோதரன்": "Brother",
+
+        "college": "College",
+        "கல்லூரி": "College",
+
+        "drink": "Drink",
+        "குடி": "Drink",
+
+        "eat": "Eat",
+        "சாப்பிடு": "Eat",
+
+        "family": "Family",
+        "குடும்பம்": "Family",
+
+        "father": "Father",
+        "dad": "Father",
+        "அப்பா": "Father",
+
+        "food": "Food",
+        "உணவு": "Food",
+
+        "friend": "Friend",
+        "நண்பர்": "Friend",
+
+        "girl": "Girl",
+        "சிறுமி": "Girl",
+
+        "good": "Good",
+        "நல்லது": "Good",
+
+        "hello": "Hello",
+        "hi": "Hello",
+        "வணக்கம்": "Hello",
+
+        "help": "Help",
+        "உதவி": "Help",
+
+        "home": "Home",
+        "வீடு": "Home",
+
+        "i love you": "ILoveYou",
+        "love you": "ILoveYou",
+        "நான் உன்னை நேசிக்கிறேன்": "ILoveYou",
+
+        "love": "Love",
+        "அன்பு": "Love",
+
+        "more": "More",
+        "மேலும்": "More",
+
+        "mother": "Mother",
+        "mom": "Mother",
+        "அம்மா": "Mother",
+
+        "no": "No",
+        "இல்லை": "No",
+
+        "please": "Please",
+        "தயவு செய்து": "Please",
+
+        "school": "School",
+        "பள்ளி": "School",
+
+        "sister": "Sister",
+        "சகோதரி": "Sister",
+
+        "stop": "Stop",
+        "நிறுத்து": "Stop",
+
+        "thank you": "ThankYou",
+        "thanks": "ThankYou",
+        "நன்றி": "ThankYou",
+
+        "understand": "Understand",
+        "புரிந்து கொள்": "Understand",
+
+        "wait": "Wait",
+        "காத்திரு": "Wait",
+
+        "water": "Water",
+        "தண்ணீர்": "Water",
+
+        "yes": "Yes",
+        "ஆம்": "Yes"
+
+    };
+
+
+    for (const key in wordMap) {
+
+        if (s.includes(key)) {
+            return wordMap[key];
+        }
+
+    }
+
+    return null;
+}
+
+
+/* =========================
+   TEXT TO SIGN
+   ========================= */
+
+let currentSignWord = "";
+
+
+function convertTextToSign() {
+
+    const text =
+        document.getElementById("textInput")
+        .value
+        .trim();
+
+    if (!text) {
+
+        document.getElementById("signWord")
+        .textContent = "Enter a word";
+
+        document.getElementById("signTamil")
+        .textContent = "உரை உள்ளிடவும்";
+
+        document.getElementById("signImage")
+        .style.display = "none";
+
+        return;
+    }
+
+
+    const word = findGesture(text);
+
+
+    if (!word) {
+
+        document.getElementById("signWord")
+        .textContent = "Sign not found";
+
+        document.getElementById("signTamil")
+        .textContent =
+        "இந்த 30 சைகை வார்த்தைகளில் ஒன்றை உள்ளிடவும்";
+
+        document.getElementById("signImage")
+        .style.display = "none";
+
+        document.getElementById("imageTitle")
+        .textContent = "";
+
+        return;
+    }
+
+
+    currentSignWord = word;
+
+    refreshTextResult();
+}
+
+
+/* =========================
+   DISPLAY SIGN IMAGE
+   ========================= */
+
+function refreshTextResult() {
+
+    if (!currentSignWord) return;
+
+
+    const g = gestureMap[currentSignWord];
+
+
+    document.getElementById("signWord")
+    .textContent = currentSignWord;
+
+
+    document.getElementById("signTamil")
+    .textContent = g.ta;
+
+
+    const img =
+        document.getElementById("signImage");
+
+
+    /*
+       IMPORTANT:
+       Images are in the same folder
+       as index.html.
+    */
+
+    img.src = g.file;
+
+    img.style.display = "block";
+
+
+    document.getElementById("imageTitle")
+    .textContent =
+    "Sign Image: " + currentSignWord;
+
+
+    /* IMAGE ERROR */
+
+    img.onerror = function () {
+
+        img.style.display = "none";
+
+        document.getElementById("imageTitle")
+        .textContent =
+        "Image not found: " + g.file;
+
+    };
+
 }
 let recognition=null;
 function startVoice(){
