@@ -843,11 +843,6 @@ id="cameraTamil">
 கேமராவை தொடங்கவும்
 </div>
 
-<div class="confidence"
-id="confidence">
-Confidence: --
-</div>
-
 <button class="btn switch"
 onclick="speakDetected()"
 data-i="playVoice">
@@ -989,11 +984,6 @@ Waiting...
 <div class="result-ta"
 id="uploadTamil">
 Video upload pannunga
-</div>
-
-<div class="confidence"
-id="uploadConfidence">
-Confidence: --
 </div>
 
 <button class="btn switch"
@@ -1782,10 +1772,6 @@ function setCameraResult(word,conf){
 
  document.getElementById("cameraResult")
  .textContent=word;
-
- document.getElementById("confidence")
- .textContent=
- `Confidence: ${conf}%`;
 
  document.getElementById("cameraTamil")
  .textContent=
