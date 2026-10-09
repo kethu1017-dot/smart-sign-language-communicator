@@ -1,2395 +1,534 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Sign Language Communicator</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
 
 <style>
-*{box-sizing:border-box}
-
-body{
- margin:0;
- font-family:Arial,Helvetica,sans-serif;
- background:#f7f7ff;
- color:#17153d;
-}
-
-header{
- height:72px;
- background:linear-gradient(110deg,#3226c8,#6131df,#9a42ef);
- color:white;
- display:flex;
- align-items:center;
- padding:0 20px;
- position:fixed;
- top:0;
- left:0;
- right:0;
- z-index:20;
-}
-
-.logo{
- width:48px;
- height:48px;
- border-radius:14px;
- background:white;
- display:grid;
- place-items:center;
- margin-right:12px;
-}
-
-.logo svg{
- width:34px;
- height:34px;
-}
-
-.brand h1{
- font-size:19px;
- margin:0;
-}
-
-.brand p{
- font-size:11px;
- margin:3px 0 0;
- opacity:.9;
-}
-
-.header-right{
- margin-left:auto;
- display:flex;
- gap:10px;
- align-items:center;
-}
-
-.lang,.home-btn{
- border:0;
- background:#ffffff1c;
- color:white;
- border-radius:20px;
- padding:10px 14px;
- cursor:pointer;
-}
-
-.lang option{
- color:#111;
-}
-
-.sidebar{
- position:fixed;
- top:72px;
- bottom:0;
- left:0;
- width:230px;
- background:#22215b;
- color:white;
- padding:20px 14px;
- z-index:10;
-}
-
-.nav{
- width:100%;
- border:0;
- background:transparent;
- color:#eee;
- text-align:left;
- padding:13px 14px;
- margin:4px 0;
- border-radius:10px;
- font-size:14px;
- cursor:pointer;
-}
-
-.nav:hover,
-.nav.active{
- background:linear-gradient(90deg,#5a35dc,#7336e8);
-}
-
-.how{
- position:absolute;
- bottom:18px;
- left:14px;
- right:14px;
-}
-
-main{
- margin-left:230px;
- padding:95px 28px 30px;
- min-height:100vh;
-}
-
-.page{
- display:none;
-}
-
-.page.active{
- display:block;
-}
-
-.page-title{
- font-size:28px;
- margin:0 0 6px;
-}
-
-.page-sub{
- color:#666;
- margin:0 0 22px;
-}
-
-.hero{
- display:grid;
- grid-template-columns:1.1fr .9fr;
- gap:28px;
- align-items:center;
-}
-
-.hero-logo{
- height:250px;
- display:grid;
- place-items:center;
-}
-
-.hero-logo svg{
- width:230px;
- height:230px;
-}
-
-.badge{
- display:inline-block;
- background:#eee9ff;
- color:#5730d7;
- padding:7px 12px;
- border-radius:15px;
- font-weight:bold;
- font-size:12px;
-}
-
-.hero h2{
- font-size:42px;
- line-height:1.05;
- margin:14px 0;
- color:#282071;
-}
-
-.hero p{
- font-size:16px;
- line-height:1.6;
- color:#5f5b72;
-}
-
-.chips{
- display:flex;
- gap:8px;
- flex-wrap:wrap;
-}
-
-.chip{
- padding:8px 12px;
- border-radius:18px;
- background:#f0edff;
- color:#5430cf;
- font-size:13px;
-}
-
-.primary{
- border:0;
- border-radius:10px;
- padding:13px 20px;
- background:linear-gradient(90deg,#3d27d1,#7137e8);
- color:#fff;
- font-weight:bold;
- cursor:pointer;
- margin-top:18px;
-}
-
-.cards{
- display:grid;
- grid-template-columns:repeat(2,1fr);
- gap:16px;
- margin-top:20px;
-}
-
-.card{
- background:#fff;
- border:1px solid #e8e4fb;
- border-radius:14px;
- padding:20px;
- box-shadow:0 8px 25px #3825a00d;
-}
-
-.mode{
- cursor:pointer;
-}
-
-.mode-icon{
- font-size:25px;
- color:#5830d8;
-}
-
-.mode h3{
- margin:8px 0 5px;
-}
-
-.mode p{
- margin:0;
- color:#777;
- font-size:13px;
-}
-
-.flow{
- margin-top:22px;
- background:#eeeaff;
- border-radius:12px;
- padding:18px;
- display:flex;
- justify-content:space-around;
- gap:12px;
- flex-wrap:wrap;
- color:#5730d7;
- font-weight:bold;
-}
-
-.grid3{
- display:grid;
- grid-template-columns:1.25fr .9fr .9fr;
- gap:16px;
-}
-
-.panel{
- background:#fff;
- border:1px solid #e7e3fa;
- border-radius:14px;
- padding:16px;
- box-shadow:0 8px 25px #3825a00d;
-}
-
-.panel h3{
- margin:0 0 12px;
-}
-
-.video-wrap{
- position:relative;
- background:#111;
- border-radius:12px;
- overflow:hidden;
- min-height:300px;
-}
-
-.video-wrap video{
- width:100%;
- display:block;
- min-height:300px;
- object-fit:cover;
-}
-
-.video-wrap canvas{
- position:absolute;
- inset:0;
- width:100%;
- height:100%;
- pointer-events:none;
-}
-
-.buttons{
- display:flex;
- gap:8px;
- flex-wrap:wrap;
- margin-top:12px;
-}
-
-.btn{
- border:0;
- border-radius:8px;
- padding:10px 12px;
- cursor:pointer;
- font-weight:bold;
-}
-
-.start{
- background:#35a853;
- color:white;
-}
-
-.stop{
- background:#e94c4c;
- color:white;
-}
-
-.switch{
- background:#6236df;
- color:white;
-}
-
-.secondary{
- background:#eeeaff;
- color:#4f2bd1;
-}
-
-.status{
- padding:10px 12px;
- border-radius:9px;
- background:#f5f4fb;
- margin:7px 0;
- font-size:13px;
- display:flex;
- justify-content:space-between;
-}
-
-.ok{
- color:#168d43;
- font-weight:bold;
-}
-
-.result{
- background:#f0ecff;
- border-radius:12px;
- padding:20px;
- text-align:center;
-}
-
-.result-word{
- font-size:30px;
- font-weight:bold;
- color:#4d25cc;
- margin:6px;
-}
-
-.result-ta{
- font-size:22px;
- color:#6a3de2;
-}
-
-.confidence{
- font-size:13px;
- color:#666;
- margin:12px;
-}
-
-.select{
- width:100%;
- padding:11px;
- border:1px solid #d8d3ef;
- border-radius:8px;
- background:white;
-}
-
-.upload{
- border:2px dashed #c7bff0;
- border-radius:12px;
- padding:30px;
- text-align:center;
- background:#faf9ff;
-}
-
-.upload input{
- display:none;
-}
-
-.preview{
- width:100%;
- max-height:300px;
- border-radius:10px;
- object-fit:contain;
- background:#111;
- margin-top:12px;
-}
-
-.textgrid{
- display:grid;
- grid-template-columns:1fr 1fr 1fr;
- gap:16px;
-}
-
-.textarea{
- width:100%;
- height:150px;
- resize:vertical;
- border:1px solid #d9d4ed;
- border-radius:10px;
- padding:12px;
- font-size:15px;
-}
-
-.voicebox{
- text-align:center;
- padding:30px;
-}
-
-.mic{
- width:75px;
- height:75px;
- border-radius:50%;
- border:0;
- background:#eee9ff;
- color:#5931d8;
- font-size:32px;
- cursor:pointer;
-}
-
-.sign-output{
- text-align:center;
-}
-
-.sign-output img{
- width:100%;
- max-height:280px;
- object-fit:contain;
- border-radius:10px;
- background:#eeeeee;
- margin-top:10px;
-}
-
-.image-error{
- display:none;
- background:#fff1f1;
- color:#c62828;
- padding:12px;
- border-radius:8px;
- margin-top:10px;
- font-size:13px;
-}
-
-.small{
- font-size:12px;
- color:#777;
-}
-
-.footer{
- text-align:center;
- color:#777;
- font-size:12px;
- margin-top:30px;
-}
-
-@media(max-width:900px){
-
- .sidebar{
-  width:190px;
- }
-
- .brand h1{
-  font-size:15px;
- }
-
- .hero{
-  grid-template-columns:1fr;
- }
-
- .grid3,
- .textgrid{
-  grid-template-columns:1fr;
- }
-
- .cards{
-  grid-template-columns:1fr;
- }
-
- main{
-  margin-left:190px;
- }
-}
-
-@media(max-width:650px){
-
- .sidebar{
-  display:none;
- }
-
- main{
-  margin-left:0;
-  padding:88px 14px 25px;
- }
-
- .hero h2{
-  font-size:32px;
- }
-
- .header-right .home-btn{
-  display:none;
- }
-}
+:root {
+  --bg:#0b1020; --panel:#151d32; --text:#f4f7ff;
+  --muted:#b6c1d8; --accent:#70e1d1; --blue:#7c9cff;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; font-family:Arial,sans-serif; color:var(--text);
+  background:linear-gradient(140deg,#0b1020,#182746);
+}
+header {
+  text-align:center; padding:25px 14px;
+  background:#111a2d; border-bottom:1px solid #34415b;
+}
+header h1 { margin:0 0 10px; color:var(--accent); font-size:27px; }
+header p { color:var(--muted); margin:0; }
+nav {
+  display:flex; flex-wrap:wrap; justify-content:center; gap:8px;
+  padding:14px;
+}
+button, .upload-label {
+  background:var(--accent); color:#09201f; border:0;
+  border-radius:9px; padding:11px 15px; font-weight:bold;
+  cursor:pointer; font-size:14px;
+}
+button.secondary { background:#293752; color:white; }
+button:disabled { opacity:.5; cursor:not-allowed; }
+main { width:min(1050px,94%); margin:auto; }
+section {
+  background:var(--panel); margin:16px 0; padding:20px;
+  border:1px solid #2c3953; border-radius:16px;
+}
+h2 { color:var(--accent); margin-top:0; }
+p, label { line-height:1.6; }
+.muted { color:var(--muted); }
+.camera-box {
+  position:relative; width:100%; max-width:640px;
+  margin:14px auto; background:#050810; border-radius:12px;
+  overflow:hidden; aspect-ratio:4/3;
+}
+.camera-box video, .camera-box canvas {
+  position:absolute; width:100%; height:100%; inset:0;
+  object-fit:contain;
+}
+.camera-box canvas { pointer-events:none; }
+video.upload-video { width:100%; max-width:640px; display:block;
+  margin:12px auto; background:#050810; border-radius:12px; }
+.controls { display:flex; flex-wrap:wrap; gap:9px; margin:12px 0; }
+.result {
+  padding:15px; background:#0b1426; border-radius:10px;
+  border:1px solid #34415b; margin-top:12px;
+}
+.result strong { color:var(--accent); }
+input, textarea, select {
+  width:100%; padding:12px; border-radius:9px;
+  border:1px solid #50607c; background:#0b1426;
+  color:white; margin:7px 0 12px; font-size:16px;
+}
+textarea { min-height:90px; resize:vertical; }
+.status { color:#ffd479; }
+#signImage { max-width:180px; max-height:180px; display:none;
+  object-fit:contain; background:white; border-radius:10px; padding:8px; }
+footer { text-align:center; padding:25px; color:var(--muted); }
 </style>
 </head>
 
 <body>
-
 <header>
-
-<div class="logo">
-<svg viewBox="0 0 100 100">
-<path d="M36 72V38c0-4 6-5 7 0v17h4V23c0-5 8-5 8 0v32h4V18c0-5 8-5 8 0v37h4V25c0-5 8-5 8 0v39c0 17-11 27-29 27-13 0-24-7-24-19z"
-fill="#5b35d5"/>
-</svg>
-</div>
-
-<div class="brand">
-<h1 data-i="title">Smart Sign Language Communicator</h1>
-<p data-i="subtitle">AI Based Communication System</p>
-</div>
-
-<div class="header-right">
-
-<select id="languageSelect" class="lang" onchange="changeLanguage()">
-<option value="en">English</option>
-<option value="ta">தமிழ்</option>
-</select>
-
-<button class="home-btn" onclick="showPage('home')" data-i="home">
-⌂ Home
-</button>
-
-</div>
+  <h1>🤟 Smart Sign Language Communicator</h1>
+  <p>An AI-Based Communication System</p>
+  <p>English and Tamil Communication Support</p>
 </header>
 
-
-<aside class="sidebar">
-
-<button class="nav active"
-data-page="home"
-onclick="showPage('home')"
-data-i="homeNav">
-⌂ &nbsp; Home
-</button>
-
-<button class="nav"
-data-page="camera"
-onclick="showPage('camera')"
-data-i="cameraNav">
-📷 &nbsp; Live Camera
-</button>
-
-<button class="nav"
-data-page="upload"
-onclick="showPage('upload')"
-data-i="uploadNav">
-🎥 &nbsp; Video Upload
-</button>
-
-<button class="nav"
-data-page="textvoice"
-onclick="showPage('textvoice')"
-data-i="textNav">
-💬 &nbsp; Text / Voice
-</button>
-
-<button class="nav how"
-data-page="how"
-onclick="showPage('how')"
-data-i="howNav">
-❔ &nbsp; How It Works
-</button>
-
-</aside>
-
+<nav>
+  <button onclick="goTo('cameraSection')">Live Camera</button>
+  <button onclick="goTo('uploadSection')">Video Upload</button>
+  <button onclick="goTo('textSection')">Text to Sign</button>
+  <button onclick="goTo('voiceSection')">Text / Voice</button>
+</nav>
 
 <main>
-
-<!-- HOME -->
-
-<section id="home" class="page active">
-
-<div class="hero">
-
-<div class="hero-logo">
-
-<svg viewBox="0 0 240 240">
-
-<circle cx="120" cy="120" r="95"
-fill="none"
-stroke="#8d68ff"
-stroke-width="7"/>
-
-<path d="M86 172V93c0-9 13-11 15 0v38h8V58c0-11 17-11 17 0v73h8V47c0-11 18-11 18 0v84h8V67c0-11 17-11 17 0v87c0 28-18 46-53 46-25 0-46-11-46-28z"
-fill="#5b35d5"/>
-
-</svg>
-
-</div>
-
-<div>
-
-<span class="badge" data-i="aiPowered">
-⚡ AI POWERED
-</span>
-
-<h2 data-i="heroTitle">
-Smart Sign Language Communicator
-</h2>
-
-<p data-i="heroDesc">
-Breaking communication barriers with AI-powered sign language recognition.
-</p>
-
-<div class="chips">
-<span class="chip" data-i="detect">✓ Detect</span>
-<span class="chip" data-i="recognize">▣ Recognize</span>
-<span class="chip" data-i="communicate">☷ Communicate</span>
-</div>
-
-<button class="primary"
-onclick="showPage('camera')"
-data-i="startCommunication">
-Start Communication →
-</button>
-
-</div>
-</div>
-
-
-<h2 data-i="modes">
-Communication Modes
-</h2>
-
-<div class="cards">
-
-<div class="card mode"
-onclick="showPage('camera')">
-
-<div class="mode-icon">📷</div>
-
-<h3 data-i="liveCamera">
-Live Camera
-</h3>
-
-<p data-i="liveDesc">
-Real-time detection
-</p>
-
-</div>
-
-
-<div class="card mode"
-onclick="showPage('upload')">
-
-<div class="mode-icon">🎥</div>
-
-<h3 data-i="videoUpload">
-Video Upload
-</h3>
-
-<p data-i="uploadDesc">
-Upload & analyse video
-</p>
-
-</div>
-
-
-<div class="card mode"
-onclick="showPage('textvoice')">
-
-<div class="mode-icon">💬</div>
-
-<h3 data-i="textVoice">
-Text / Voice
-</h3>
-
-<p data-i="textDesc">
-Convert to sign gestures
-</p>
-
-</div>
-
-
-<div class="card mode"
-onclick="showPage('how')">
-
-<div class="mode-icon">💡</div>
-
-<h3 data-i="howItWorks">
-How It Works
-</h3>
-
-<p data-i="howDesc">
-Learn the process
-</p>
-
-</div>
-
-</div>
-
-
-<div class="flow">
-<span>🖐 Sign Language</span>
-<b>→</b>
-<span>🧠 AI Recognition</span>
-<b>→</b>
-<span>📄 Text</span>
-<b>→</b>
-<span>🔊 Voice</span>
-</div>
-
-<div class="footer">
-Smart Sign Language Communicator © 2026
-</div>
-
+<section>
+  <h2>🏠 Welcome</h2>
+  <p>This project demonstrates hand landmark detection and basic gesture recognition to support communication.</p>
+  <p class="muted">Allow camera access when prompted. Good lighting and keeping your hand fully visible can improve detection.</p>
 </section>
 
+<section id="cameraSection">
+  <h2>📷 Live Hand Gesture Recognition</h2>
+  <p class="muted">Show one hand clearly in front of your camera.</p>
 
-<!-- CAMERA -->
+  <div class="camera-box">
+    <video id="cameraVideo" autoplay playsinline muted></video>
+    <canvas id="drawCanvas"></canvas>
+  </div>
 
-<section id="camera" class="page">
+  <div class="controls">
+    <button id="startBtn" onclick="startCamera()">Start Camera</button>
+    <button class="secondary" onclick="stopCamera()">Stop Camera</button>
+    <button class="secondary" onclick="switchCamera()">Switch Camera</button>
+  </div>
 
-<h1 class="page-title" data-i="cameraTitle">
-Live Camera Detection
-</h1>
-
-<p class="page-sub" data-i="cameraSub">
-Detect hand, face and body language in real-time.
-Result will appear on this page.
-</p>
-
-
-<div class="grid3">
-
-<div class="panel">
-
-<h3>📷 <span data-i="camera">Camera</span></h3>
-
-<div class="video-wrap">
-
-<video id="cameraVideo"
-autoplay
-playsinline>
-</video>
-
-<canvas id="drawCanvas"></canvas>
-
-</div>
-
-
-<div class="buttons">
-
-<button class="btn start"
-onclick="startCamera()"
-data-i="start">
-Start Camera
-</button>
-
-<button class="btn switch"
-onclick="switchCamera()"
-data-i="switch">
-Switch Camera
-</button>
-
-<button class="btn stop"
-onclick="stopCamera()"
-data-i="stop">
-Stop
-</button>
-
-</div>
-
-<p id="cameraStatus" class="small">
-Camera Off
-</p>
-
-</div>
-
-
-<div class="panel">
-
-<h3 data-i="detectionStatus">
-Detection Status
-</h3>
-
-<div class="status">
-🖐
-<span data-i="handDetection">Hand Detection</span>
-<span id="handStatus" class="ok">Waiting</span>
-</div>
-
-<div class="status">
-🙂
-<span data-i="faceDetection">Face Detection</span>
-<span id="faceStatus" class="ok">Waiting</span>
-</div>
-
-<div class="status">
-🧍
-<span data-i="bodyDetection">Body Language</span>
-<span id="bodyStatus" class="ok">Waiting</span>
-</div>
-
-<div class="status">
-🧠
-<span data-i="aiRecognition">AI Recognition</span>
-<span id="aiStatus" class="ok">Waiting</span>
-</div>
-
-</div>
-
-
-<div class="panel">
-
-<h3 data-i="detectedGesture">
-Detected Gesture
-</h3>
-
-<div class="result">
-
-<div class="result-word"
-id="cameraResult">
-Waiting...
-</div>
-
-<div class="result-ta"
-id="cameraTamil">
-கேமராவை தொடங்கவும்
-</div>
-
-<button class="btn switch"
-onclick="speakDetected()"
-data-i="playVoice">
-🔊 Play Voice
-</button>
-
-</div>
-
-<br>
-
-<label data-i="outputLanguage">
-Output Language
-</label>
-
-<select id="cameraOutputLang"
-class="select">
-
-<option value="en">English</option>
-<option value="ta">தமிழ்</option>
-
-</select>
-
-</div>
-
-</div>
-
+  <div class="result">
+    <p>Status: <span id="cameraStatus" class="status">Camera stopped</span></p>
+    <p>Detected gesture: <strong id="cameraResult">Waiting...</strong></p>
+    <p>Tamil meaning: <strong id="cameraTamil">காத்திருக்கவும்...</strong></p>
+    <p class="muted" id="fingerInfo">Show your hand to begin.</p>
+  </div>
+  <p class="muted">Note: This demo uses simple finger-position rules, not a fully trained sign-language AI model.</p>
 </section>
 
-
-<!-- VIDEO UPLOAD -->
-
-<section id="upload" class="page">
-
-<h1 class="page-title" data-i="uploadTitle">
-Video Upload & Recognition
-</h1>
-
-<p class="page-sub" data-i="uploadSub">
-Upload a sign language video.
-The system will analyse the video.
-</p>
-
-
-<div class="grid3">
-
-<div class="panel">
-
-<h3>🎥 <span data-i="chooseVideo">
-Choose Video
-</span></h3>
-
-<div class="upload">
-
-<div style="font-size:35px">
-☁️
-</div>
-
-<p data-i="clickUpload">
-Click to upload video<br>
-or drag and drop
-</p>
-
-<label class="btn switch"
-for="videoInput"
-data-i="chooseFile">
-Choose Video
-</label>
-
-<input id="videoInput"
-type="file"
-accept="video/*"
-onchange="loadVideo(event)">
-
-<video id="uploadedVideo"
-class="preview"
-controls
-style="display:none">
-</video>
-
-<button id="analyseBtn"
-class="btn switch"
-style="display:none;width:100%;margin-top:10px"
-onclick="analyseUploadedVideo()"
-data-i="analyseVideo">
-Analyse Video
-</button>
-
-</div>
-
-</div>
-
-
-<div class="panel">
-
-<h3 data-i="detectionProcess">
-Detection Process
-</h3>
-
-<div class="status">
-🖐
-<span data-i="handDetection">Hand Detection</span>
-<span id="upHand" class="ok">Waiting</span>
-</div>
-
-<div class="status">
-🙂
-<span data-i="faceDetection">Face Detection</span>
-<span id="upFace" class="ok">Waiting</span>
-</div>
-
-<div class="status">
-🧍
-<span data-i="bodyDetection">Body Language</span>
-<span id="upBody" class="ok">Waiting</span>
-</div>
-
-<div class="status">
-🧠
-<span data-i="aiRecognition">AI Recognition</span>
-<span id="upAI" class="ok">Waiting</span>
-</div>
-
-</div>
-
-
-<div class="panel">
-
-<h3 data-i="recognitionResult">
-Recognition Result
-</h3>
-
-<div class="result">
-
-<div class="result-word"
-id="uploadResult">
-Waiting...
-</div>
-
-<div class="result-ta"
-id="uploadTamil">
-Video upload pannunga
-</div>
-
-<button class="btn switch"
-onclick="speakUpload()"
-data-i="playVoice">
-🔊 Play Voice
-</button>
-
-</div>
-
-<br>
-
-<label data-i="outputLanguage">
-Output Language
-</label>
-
-<select id="uploadOutputLang"
-class="select">
-
-<option value="en">English</option>
-<option value="ta">தமிழ்</option>
-
-</select>
-
-</div>
-
-</div>
-
+<section id="uploadSection">
+  <h2>🎞️ Video Upload</h2>
+  <label for="videoFile">Choose a video file</label>
+  <input id="videoFile" type="file" accept="video/*">
+  <video id="uploadedVideo" class="upload-video" controls playsinline></video>
+  <div class="controls">
+    <button onclick="analyseVideo()">Check Video Frame</button>
+  </div>
+  <div class="result">
+    <p>Result: <strong id="uploadResult">No video checked</strong></p>
+    <p>Tamil meaning: <strong id="uploadTamil">—</strong></p>
+    <p class="muted">Play the video and pause it when the hand is clearly visible, then press Check Video Frame.</p>
+  </div>
 </section>
 
-
-<!-- TEXT VOICE -->
-
-<section id="textvoice" class="page">
-
-<h1 class="page-title" data-i="textTitle">
-Text / Voice to Sign Gesture
-</h1>
-
-<p class="page-sub" data-i="textSub">
-Enter text or speak, then convert it to a sign gesture.
-</p>
-
-
-<div class="textgrid">
-
-
-<div class="panel">
-
-<h3>
-⌨️
-<span data-i="textInput">
-Text Input
-</span>
-</h3>
-
-<textarea
-id="textInput"
-class="textarea"
-placeholder="Enter text (e.g. Hello, Thank you, Boy...)">
-</textarea>
-
-<button
-class="primary"
-style="width:100%"
-onclick="convertTextToSign()"
-data-i="convertSigns">
-Convert to Signs
-</button>
-
-</div>
-
-
-<div class="panel voicebox">
-
-<h3>
-🎙
-<span data-i="voiceInput">
-Voice Input
-</span>
-</h3>
-
-<button class="mic"
-onclick="startVoice()">
-🎙
-</button>
-
-<p id="voiceStatus"
-class="small"
-data-i="clickSpeak">
-Click to speak
-</p>
-
-<p class="small">
-Chrome/Edge browser recommended
-</p>
-
-</div>
-
-
-<div class="panel sign-output">
-
-<h3 data-i="signOutput">
-Sign Gesture Output
-</h3>
-
-
-<img id="signImage"
-src=""
-alt="Sign gesture"
-style="display:none">
-
-
-<div id="imageError"
-class="image-error">
-Image not found.
-</div>
-
-
-<div class="result"
-style="margin-top:10px">
-
-<div class="result-word"
-id="signWord">
-Waiting...
-</div>
-
-<div class="result-ta"
-id="signTamil">
-உரை உள்ளிடவும்
-</div>
-
-</div>
-
-
-<br>
-
-<label data-i="outputLanguage">
-Output Language
-</label>
-
-<select id="textOutputLang"
-class="select"
-onchange="refreshTextResult()">
-
-<option value="en">English</option>
-<option value="ta">தமிழ்</option>
-
-</select>
-
-</div>
-
-</div>
-
+<section id="textSection">
+  <h2>✍️ Text to Sign</h2>
+  <label for="textInput">Enter an English or Tamil word</label>
+  <textarea id="textInput" placeholder="Example: Hello, Thank you, Vanakkam..."></textarea>
+  <div class="controls">
+    <button onclick="convertText()">Find Sign</button>
+    <button class="secondary" onclick="clearText()">Clear</button>
+  </div>
+  <div class="result">
+    <p>Word: <strong id="textWord">—</strong></p>
+    <p>Tamil meaning: <strong id="textTamil">—</strong></p>
+    <img id="signImage" alt="Sign image">
+    <p id="imageMessage" class="muted">Matching sign images can be added to the project folder.</p>
+  </div>
 </section>
 
+<section id="voiceSection">
+  <h2>🔊 Text to Voice</h2>
+  <label for="voiceText">Enter text to speak</label>
+  <textarea id="voiceText" placeholder="Type a message here..."></textarea>
+  <label for="voiceLanguage">Voice language</label>
+  <select id="voiceLanguage">
+    <option value="en-US">English</option>
+    <option value="ta-IN">Tamil</option>
+  </select>
+  <div class="controls">
+    <button onclick="speakText()">Speak Text</button>
+    <button class="secondary" onclick="stopSpeaking()">Stop Voice</button>
+  </div>
 
-<!-- HOW -->
-
-<section id="how" class="page">
-
-<h1 class="page-title"
-data-i="howTitle">
-How It Works
-</h1>
-
-<p class="page-sub"
-data-i="howSub">
-Simple communication flow of the Smart Sign Language Communicator.
-</p>
-
-<div class="cards">
-
-<div class="card">
-
-<h3>
-1️⃣ 🖐
-<span data-i="step1">
-Input
-</span>
-</h3>
-
-<p data-i="step1d">
-Use the live camera or upload a sign-language video.
-</p>
-
-</div>
-
-
-<div class="card">
-
-<h3>
-2️⃣ 🧠
-<span data-i="step2">
-Detection
-</span>
-</h3>
-
-<p data-i="step2d">
-MediaPipe detects hand, face and body landmarks.
-</p>
-
-</div>
-
-
-<div class="card">
-
-<h3>
-3️⃣ 🤖
-<span data-i="step3">
-AI Recognition
-</span>
-</h3>
-
-<p data-i="step3d">
-The recognition layer maps the gesture to a sign word.
-</p>
-
-</div>
-
-
-<div class="card">
-
-<h3>
-4️⃣ 🔊
-<span data-i="step4">
-Communication
-</span>
-</h3>
-
-<p data-i="step4d">
-The result is shown as text and can be spoken aloud.
-</p>
-
-</div>
-
-</div>
-
+  <h2>🎤 Voice to Text</h2>
+  <p class="muted">Speech recognition depends on browser and language support.</p>
+  <div class="controls">
+    <button onclick="startVoiceInput()">Start Microphone</button>
+  </div>
+  <p>Microphone status: <strong id="micStatus">Not started</strong></p>
 </section>
 
+<section>
+  <h2>ℹ️ How It Works</h2>
+  <ol>
+    <li>Open the live camera and allow camera permission.</li>
+    <li>The hand-tracking library identifies hand landmarks.</li>
+    <li>Basic finger-position rules estimate a gesture.</li>
+    <li>The app displays an English word and Tamil meaning.</li>
+    <li>Text-to-voice reads a message aloud.</li>
+  </ol>
+  <p class="muted">This is a demonstration. Reliable recognition of real sign language requires a trained model and testing with a suitable dataset.</p>
+</section>
 </main>
 
+<footer>Smart Sign Language Communicator | Student Project</footer>
 
 <script>
-
-/* =========================
-   TRANSLATION
-========================= */
-
-const translations={
-
-en:{
-title:"Smart Sign Language Communicator",
-subtitle:"AI Based Communication System",
-home:"⌂ Home",
-homeNav:"⌂ &nbsp; Home",
-cameraNav:"📷 &nbsp; Live Camera",
-uploadNav:"🎥 &nbsp; Video Upload",
-textNav:"💬 &nbsp; Text / Voice",
-howNav:"❔ &nbsp; How It Works",
-
-aiPowered:"⚡ AI POWERED",
-heroTitle:"Smart Sign Language Communicator",
-heroDesc:"Breaking communication barriers with AI-powered sign language recognition.",
-detect:"✓ Detect",
-recognize:"▣ Recognize",
-communicate:"☷ Communicate",
-startCommunication:"Start Communication →",
-modes:"Communication Modes",
-liveCamera:"Live Camera",
-liveDesc:"Real-time detection",
-videoUpload:"Video Upload",
-uploadDesc:"Upload & analyse video",
-textVoice:"Text / Voice",
-textDesc:"Convert to sign gestures",
-howItWorks:"How It Works",
-howDesc:"Learn the process",
-
-cameraTitle:"Live Camera Detection",
-cameraSub:"Detect hand, face and body language in real-time. Result will appear on this page.",
-camera:"Camera",
-start:"Start Camera",
-switch:"Switch Camera",
-stop:"Stop",
-detectionStatus:"Detection Status",
-handDetection:"Hand Detection",
-faceDetection:"Face Detection",
-bodyDetection:"Body Language",
-aiRecognition:"AI Recognition",
-detectedGesture:"Detected Gesture",
-playVoice:"🔊 Play Voice",
-outputLanguage:"Output Language",
-
-uploadTitle:"Video Upload & Recognition",
-uploadSub:"Upload a sign language video. The system will analyse the video.",
-chooseVideo:"Choose Video",
-clickUpload:"Click to upload video<br>or drag and drop",
-chooseFile:"Choose Video",
-analyseVideo:"Analyse Video",
-detectionProcess:"Detection Process",
-recognitionResult:"Recognition Result",
-
-textTitle:"Text / Voice to Sign Gesture",
-textSub:"Enter text or speak, then convert it to a sign gesture.",
-textInput:"Text Input",
-voiceInput:"Voice Input",
-convertSigns:"Convert to Signs",
-clickSpeak:"Click to speak",
-signOutput:"Sign Gesture Output",
-
-howTitle:"How It Works",
-howSub:"Simple communication flow of the Smart Sign Language Communicator.",
-step1:"Input",
-step1d:"Use the live camera or upload a sign-language video.",
-step2:"Detection",
-step2d:"MediaPipe detects hand, face and body landmarks.",
-step3:"AI Recognition",
-step3d:"The recognition layer maps the gesture to a sign word.",
-step4:"Communication",
-step4d:"The result is shown as text and can be spoken aloud."
-},
-
-ta:{
-title:"ஸ்மார்ட் சைகை மொழி தொடர்பாளர்",
-subtitle:"AI அடிப்படையிலான தொடர்பு அமைப்பு",
-home:"⌂ முகப்பு",
-homeNav:"⌂ &nbsp; முகப்பு",
-cameraNav:"📷 &nbsp; நேரடி கேமரா",
-uploadNav:"🎥 &nbsp; வீடியோ பதிவேற்றம்",
-textNav:"💬 &nbsp; உரை / குரல்",
-howNav:"❔ &nbsp; எப்படி செயல்படுகிறது",
-
-aiPowered:"⚡ AI POWERED",
-heroTitle:"ஸ்மார்ட் சைகை மொழி தொடர்பாளர்",
-heroDesc:"AI அடிப்படையிலான சைகை மொழி அடையாளம் மூலம் தொடர்பு தடைகளை நீக்குகிறது.",
-detect:"✓ கண்டறிதல்",
-recognize:"▣ அடையாளம்",
-communicate:"☷ தொடர்பு",
-startCommunication:"தொடங்குங்கள் →",
-modes:"தொடர்பு முறைகள்",
-liveCamera:"நேரடி கேமரா",
-liveDesc:"நேரடி கண்டறிதல்",
-videoUpload:"வீடியோ பதிவேற்றம்",
-uploadDesc:"வீடியோ பதிவேற்றி பகுப்பாய்வு",
-textVoice:"உரை / குரல்",
-textDesc:"சைகையாக மாற்றுதல்",
-howItWorks:"எப்படி செயல்படுகிறது",
-howDesc:"செயல்முறையை அறிக",
-
-cameraTitle:"நேரடி கேமரா கண்டறிதல்",
-cameraSub:"கை, முகம் மற்றும் உடல் மொழியை நேரடியாக கண்டறிகிறது. முடிவு இதே பக்கத்தில் காட்டப்படும்.",
-camera:"கேமரா",
-start:"கேமராவை தொடங்கு",
-switch:"முன் / பின் மாற்று",
-stop:"நிறுத்து",
-detectionStatus:"கண்டறிதல் நிலை",
-handDetection:"கை கண்டறிதல்",
-faceDetection:"முகம் கண்டறிதல்",
-bodyDetection:"உடல் மொழி",
-aiRecognition:"AI அடையாளம்",
-detectedGesture:"கண்டறியப்பட்ட சைகை",
-playVoice:"🔊 குரலை இயக்கவும்",
-outputLanguage:"வெளியீட்டு மொழி",
-
-uploadTitle:"வீடியோ பதிவேற்றம் மற்றும் அடையாளம்",
-uploadSub:"சைகை மொழி வீடியோவை பதிவேற்றவும். அமைப்பு வீடியோவை பகுப்பாய்வு செய்யும்.",
-chooseVideo:"வீடியோ தேர்வு",
-clickUpload:"வீடியோவை பதிவேற்ற கிளிக் செய்யவும்<br>அல்லது இழுத்து விடவும்",
-chooseFile:"வீடியோ தேர்வு",
-analyseVideo:"வீடியோ பகுப்பாய்வு",
-detectionProcess:"கண்டறிதல் செயல்முறை",
-recognitionResult:"அடையாள முடிவு",
-
-textTitle:"உரை / குரலில் இருந்து சைகை",
-textSub:"உரை உள்ளிடவும் அல்லது பேசவும், பின்னர் சைகையாக மாற்றவும்.",
-textInput:"உரை உள்ளீடு",
-voiceInput:"குரல் உள்ளீடு",
-convertSigns:"சைகையாக மாற்று",
-clickSpeak:"பேச கிளிக் செய்யவும்",
-signOutput:"சைகை வெளியீடு",
-
-howTitle:"எப்படி செயல்படுகிறது",
-howSub:"Smart Sign Language Communicator-ன் எளிய செயல்முறை.",
-step1:"உள்ளீடு",
-step1d:"நேரடி கேமராவைப் பயன்படுத்தவும் அல்லது சைகை மொழி வீடியோவை பதிவேற்றவும்.",
-step2:"கண்டறிதல்",
-step2d:"MediaPipe கை, முகம் மற்றும் உடல் landmark-களை கண்டறிகிறது.",
-step3:"AI அடையாளம்",
-step3d:"Recognition layer சைகையை ஒரு வார்த்தையுடன் இணைக்கிறது.",
-step4:"தொடர்பு",
-step4d:"முடிவு உரையாக காட்டப்பட்டு குரலாக கேட்கலாம்."
-}
-
+const words = {
+  "hello": ["Hello", "வணக்கம்"],
+  "hi": ["Hello", "வணக்கம்"],
+  "vanakkam": ["Hello", "வணக்கம்"],
+  "thank you": ["Thank You", "நன்றி"],
+  "thanks": ["Thank You", "நன்றி"],
+  "nandri": ["Thank You", "நன்றி"],
+  "yes": ["Yes", "ஆம்"],
+  "aam": ["Yes", "ஆம்"],
+  "no": ["No", "இல்லை"],
+  "illai": ["No", "இல்லை"],
+  "stop": ["Stop", "நிறுத்து"],
+  "niruthu": ["Stop", "நிறுத்து"],
+  "help": ["Help", "உதவி"],
+  "udhavi": ["Help", "உதவி"],
+  "love": ["Love", "அன்பு"],
+  "water": ["Water", "தண்ணீர்"],
+  "thanneer": ["Water", "தண்ணீர்"],
+  "food": ["Food", "உணவு"],
+  "saapadu": ["Food", "உணவு"],
+  "friend": ["Friend", "நண்பர்"],
+  "nanban": ["Friend", "நண்பர்"],
+  "one": ["One", "ஒன்று"],
+  "two": ["Two", "இரண்டு"],
+  "good": ["Good", "நல்லது"],
+  "sorry": ["Sorry", "மன்னிக்கவும்"],
+  "please": ["Please", "தயவுசெய்து"]
 };
 
+function goTo(id) {
+  document.getElementById(id).scrollIntoView({behavior:"smooth"});
+}
 
-/* =========================
-   LANGUAGE
-========================= */
-
-function changeLanguage(){
-
- const lang=document.getElementById("languageSelect").value;
-
- document.documentElement.lang=lang==="ta"?"ta":"en";
-
- document.querySelectorAll("[data-i]").forEach(el=>{
-
-  const key=el.dataset.i;
-
-  if(translations[lang][key]){
-   el.innerHTML=translations[lang][key];
+function findWord(value) {
+  const input = value.trim().toLowerCase();
+  if (words[input]) return words[input];
+  for (const key of Object.keys(words)) {
+    if (input.includes(key)) return words[key];
   }
-
- });
-
- localStorage.setItem("siteLanguage",lang);
+  return [value.trim() || "Unknown", "பொருள் கிடைக்கவில்லை"];
 }
 
-const savedLanguage=localStorage.getItem("siteLanguage")||"en";
+let handsModel = null;
+let cameraStream = null;
+let cameraRunning = false;
+let facing = "user";
+let lastGesture = "";
+let videoObjectUrl = null;
+let checkingUpload = false;
 
-document.getElementById("languageSelect").value=savedLanguage;
+const video = document.getElementById("cameraVideo");
+const canvas = document.getElementById("drawCanvas");
+const ctx = canvas.getContext("2d");
 
-changeLanguage();
-
-
-/* =========================
-   PAGE NAVIGATION
-========================= */
-
-function showPage(id){
-
- document.querySelectorAll(".page")
- .forEach(p=>p.classList.remove("active"));
-
- document.getElementById(id)
- .classList.add("active");
-
- document.querySelectorAll(".nav")
- .forEach(n=>{
-  n.classList.toggle(
-   "active",
-   n.dataset.page===id
-  );
- });
-
- window.scrollTo({
-  top:0,
-  behavior:"smooth"
- });
-
+function setCameraResult(english, tamil, info) {
+  document.getElementById("cameraResult").textContent = english;
+  document.getElementById("cameraTamil").textContent = tamil;
+  document.getElementById("fingerInfo").textContent = info || "";
 }
 
+function estimateGesture(landmarks) {
+  // Approximate finger extension check for a hand facing the camera.
+  // Thumb detection is simplified; this is not sign-language translation.
+  const fingerTips = [8, 12, 16, 20];
+  const fingerPips = [6, 10, 14, 18];
+  let extended = 0;
 
-/* =========================
-   MEDIAPIPE CAMERA
-========================= */
-
-let stream=null;
-let facing="user";
-let cameraRunning=false;
-
-let hands;
-let faceMesh;
-let pose;
-
-const video=document.getElementById("cameraVideo");
-const canvas=document.getElementById("drawCanvas");
-const ctx=canvas.getContext("2d");
-
-
-function setupMediaPipe(){
-
- try{
-
- hands=new Hands({
-  locateFile:f=>
-  `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
- });
-
- hands.setOptions({
-  maxNumHands:2,
-  modelComplexity:1,
-  minDetectionConfidence:.5,
-  minTrackingConfidence:.5
- });
-
- hands.onResults(r=>{
-
-  if(r.multiHandLandmarks &&
-     r.multiHandLandmarks.length){
-
-   document.getElementById("handStatus")
-   .textContent="Detected ✓";
-
-   recognizeLandmarks(
-    r.multiHandLandmarks[0]
-   );
-
-  }else{
-
-   document.getElementById("handStatus")
-   .textContent="Waiting";
-
-  }
-
- });
-
-
- faceMesh=new FaceMesh({
-  locateFile:f=>
-  `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`
- });
-
- faceMesh.setOptions({
-  maxNumFaces:1,
-  refineLandmarks:false,
-  minDetectionConfidence:.5,
-  minTrackingConfidence:.5
- });
-
- faceMesh.onResults(r=>{
-
-  document.getElementById("faceStatus")
-  .textContent=
-  r.multiFaceLandmarks &&
-  r.multiFaceLandmarks.length
-  ? "Detected ✓"
-  : "Waiting";
-
- });
-
-
- pose=new Pose({
-  locateFile:f=>
-  `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}`
- });
-
- pose.setOptions({
-  modelComplexity:0,
-  minDetectionConfidence:.5,
-  minTrackingConfidence:.5
- });
-
- pose.onResults(r=>{
-
-  document.getElementById("bodyStatus")
-  .textContent=
-  r.poseLandmarks
-  ? "Detected ✓"
-  : "Waiting";
-
- });
-
- }catch(error){
-
- console.error("MediaPipe error:",error);
-
- }
-
-}
-
-
-/* =========================
-   START CAMERA
-========================= */
-
-async function startCamera(){
-
- if(cameraRunning)return;
-
- if(!navigator.mediaDevices ||
-    !navigator.mediaDevices.getUserMedia){
-
-  document.getElementById("cameraStatus")
-  .textContent=
-  "Camera requires HTTPS or localhost.";
-
-  return;
- }
-
- try{
-
-  stream=await navigator.mediaDevices.getUserMedia({
-
-   video:{
-    facingMode:facing,
-    width:{ideal:1280},
-    height:{ideal:720}
-   },
-
-   audio:false
-
-  });
-
-  video.srcObject=stream;
-
-  cameraRunning=true;
-
-  document.getElementById("cameraStatus")
-  .textContent="Camera On ✓";
-
-
-  const loop=async()=>{
-
-   if(!cameraRunning)return;
-
-   if(video.readyState>=2){
-
-    canvas.width=
-    video.videoWidth||640;
-
-    canvas.height=
-    video.videoHeight||480;
-
-    try{
-
-     await hands.send({
-      image:video
-     });
-
-     await faceMesh.send({
-      image:video
-     });
-
-     await pose.send({
-      image:video
-     });
-
-    }catch(error){
-
-     console.log(error);
-
+  for (let i = 0; i < fingerTips.length; i++) {
+    if (landmarks[fingerTips[i]].y < landmarks[fingerPips[i]].y) {
+      extended++;
     }
+  }
 
-   }
+  if (extended === 4) return ["Hello", "வணக்கம்", extended];
+  if (extended === 0) return ["Yes", "ஆம்", extended];
+  if (extended === 2) return ["No", "இல்லை", extended];
+  if (extended === 1) return ["One", "ஒன்று", extended];
+  return ["Gesture not recognised", "சைகையை அடையாளம் காண முடியவில்லை", extended];
+}
 
-   requestAnimationFrame(loop);
+function drawResults(results, targetCanvas, targetCtx) {
+  targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+  if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+    return;
+  }
+  for (const landmarks of results.multiHandLandmarks) {
+    if (window.drawConnectors && window.HAND_CONNECTIONS) {
+      drawConnectors(targetCtx, landmarks, HAND_CONNECTIONS,
+        {color:"#70e1d1", lineWidth:4});
+      drawLandmarks(targetCtx, landmarks,
+        {color:"#ffcf70", lineWidth:2, radius:3});
+    }
+  }
+}
 
+async function setupHands() {
+  if (handsModel) return handsModel;
+  if (!window.Hands) throw new Error("Hand tracking library did not load.");
+  handsModel = new Hands({
+    locateFile: file =>
+      "https://cdn.jsdelivr.net/npm/@mediapipe/hands/" + file
+  });
+  handsModel.setOptions({
+    maxNumHands: 1,
+    modelComplexity: 1,
+    minDetectionConfidence: 0.6,
+    minTrackingConfidence: 0.5
+  });
+  return handsModel;
+}
+
+async function startCamera() {
+  if (cameraRunning) return;
+  try {
+    document.getElementById("cameraStatus").textContent = "Opening camera...";
+    await setupHands();
+
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: {facingMode: facing, width:{ideal:640}, height:{ideal:480}},
+      audio: false
+    });
+    video.srcObject = cameraStream;
+    await video.play();
+    cameraRunning = true;
+    document.getElementById("cameraStatus").textContent = "Camera running";
+    requestAnimationFrame(cameraLoop);
+  } catch (error) {
+    document.getElementById("cameraStatus").textContent =
+      "Camera error: " + error.message;
+    alert("Camera start aagala. HTTPS site use pannu, camera permission allow pannu.");
+  }
+}
+
+async function cameraLoop() {
+  if (!cameraRunning) return;
+  if (video.readyState >= 2 && handsModel) {
+    try {
+      await handsModel.send({image:video});
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  if (cameraRunning) requestAnimationFrame(cameraLoop);
+}
+
+async function switchCamera() {
+  const wasRunning = cameraRunning;
+  facing = facing === "user" ? "environment" : "user";
+  if (wasRunning) {
+    stopCamera();
+    await startCamera();
+  } else {
+    document.getElementById("cameraStatus").textContent =
+      "Camera facing: " + (facing === "user" ? "Front" : "Back");
+  }
+}
+
+function stopCamera() {
+  cameraRunning = false;
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+  video.srcObject = null;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  document.getElementById("cameraStatus").textContent = "Camera stopped";
+}
+
+async function onHandsResults(results) {
+  if (video.videoWidth && canvas.width !== video.videoWidth) {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+  }
+  drawResults(results, canvas, ctx);
+
+  if (!results.multiHandLandmarks || !results.multiHandLandmarks.length) {
+    setCameraResult("Waiting for hand...", "கையை காட்டவும்",
+      "Keep your whole hand visible in the frame.");
+    return;
+  }
+
+  const result = estimateGesture(results.multiHandLandmarks[0]);
+  setCameraResult(result[0], result[1], "Approximate extended fingers: " + result[2]);
+  lastGesture = result[0];
+}
+
+setupHands().then(model => {
+  model.onResults(onHandsResults);
+}).catch(error => {
+  document.getElementById("cameraStatus").textContent = error.message;
+});
+
+document.getElementById("videoFile").addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (videoObjectUrl) URL.revokeObjectURL(videoObjectUrl);
+  videoObjectUrl = URL.createObjectURL(file);
+  const uploaded = document.getElementById("uploadedVideo");
+  uploaded.src = videoObjectUrl;
+  document.getElementById("uploadResult").textContent = "Video ready";
+  document.getElementById("uploadTamil").textContent = "சரிபார்க்கத் தயார்";
+});
+
+async function analyseVideo() {
+  const uploaded = document.getElementById("uploadedVideo");
+  if (!uploaded.src || !uploaded.videoWidth) {
+    alert("First video select pannu; video load aana apram check pannu.");
+    return;
+  }
+  if (checkingUpload) return;
+  checkingUpload = true;
+
+  try {
+    const model = await setupHands();
+    document.getElementById("uploadResult").textContent = "Checking frame...";
+    const offscreen = document.createElement("canvas");
+    offscreen.width = uploaded.videoWidth;
+    offscreen.height = uploaded.videoHeight;
+    offscreen.getContext("2d").drawImage(uploaded, 0, 0,
+      offscreen.width, offscreen.height);
+
+    let detected = null;
+    const handler = results => {
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length) {
+        detected = estimateGesture(results.multiHandLandmarks[0]);
+      }
+    };
+    model.onResults(handler);
+    await model.send({image:offscreen});
+    model.onResults(onHandsResults);
+
+    if (detected) {
+      document.getElementById("uploadResult").textContent = detected[0];
+      document.getElementById("uploadTamil").textContent = detected[1];
+    } else {
+      document.getElementById("uploadResult").textContent = "No hand detected";
+      document.getElementById("uploadTamil").textContent = "கை தென்படவில்லை";
+    }
+  } catch (error) {
+    document.getElementById("uploadResult").textContent = "Could not check frame";
+    document.getElementById("uploadTamil").textContent = error.message;
+  } finally {
+    checkingUpload = false;
+  }
+}
+
+function convertText() {
+  const input = document.getElementById("textInput").value;
+  if (!input.trim()) {
+    alert("Please enter a word first.");
+    return;
+  }
+  const result = findWord(input);
+  document.getElementById("textWord").textContent = result[0];
+  document.getElementById("textTamil").textContent = result[1];
+
+  const image = document.getElementById("signImage");
+  const message = document.getElementById("imageMessage");
+  const fileName = result[0].toLowerCase().replace(/[^a-z0-9]+/g, "_") + ".png";
+
+  image.onerror = () => {
+    image.style.display = "none";
+    message.textContent =
+      "Sign image not found. Add " + fileName +
+      " to the same folder as index.html to display it.";
   };
-
-  loop();
-
- }catch(error){
-
- console.error(error);
-
- document.getElementById("cameraStatus")
- .textContent=
- "Camera permission required";
-
- }
-
+  image.onload = () => {
+    image.style.display = "block";
+    message.textContent = "Matching image loaded.";
+  };
+  image.src = "./" + fileName;
 }
 
-
-/* =========================
-   STOP CAMERA
-========================= */
-
-function stopCamera(){
-
- cameraRunning=false;
-
- if(stream){
-
-  stream.getTracks()
-  .forEach(track=>track.stop());
-
- }
-
- stream=null;
-
- video.srcObject=null;
-
- document.getElementById("cameraStatus")
- .textContent="Camera Off";
-
- document.getElementById("handStatus")
- .textContent="Waiting";
-
- document.getElementById("faceStatus")
- .textContent="Waiting";
-
- document.getElementById("bodyStatus")
- .textContent="Waiting";
-
- document.getElementById("aiStatus")
- .textContent="Waiting";
-
+function clearText() {
+  document.getElementById("textInput").value = "";
+  document.getElementById("textWord").textContent = "—";
+  document.getElementById("textTamil").textContent = "—";
+  document.getElementById("signImage").style.display = "none";
+  document.getElementById("imageMessage").textContent =
+    "Matching sign images can be added to the project folder.";
 }
 
+function speakText() {
+  const text = document.getElementById("voiceText").value.trim();
+  if (!text) {
+    alert("Type a message first.");
+    return;
+  }
+  if (!("speechSynthesis" in window)) {
+    alert("Text-to-speech is not supported in this browser.");
+    return;
+  }
+  speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = document.getElementById("voiceLanguage").value;
+  speechSynthesis.speak(utterance);
+}
 
-/* =========================
-   SWITCH CAMERA
-========================= */
+function stopSpeaking() {
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+}
 
-async function switchCamera(){
+function startVoiceInput() {
+  const Recognition = window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+  if (!Recognition) {
+    document.getElementById("micStatus").textContent =
+      "Not supported in this browser";
+    alert("Voice input support illa. Chrome browser-la try pannu.");
+    return;
+  }
 
- facing=
- facing==="user"
- ? "environment"
- : "user";
+  const recognition = new Recognition();
+  recognition.lang = document.getElementById("voiceLanguage").value;
+  recognition.interimResults = false;
+  recognition.onstart = () => {
+    document.getElementById("micStatus").textContent = "Listening...";
+  };
+  recognition.onresult = event => {
+    const spoken = event.results[0][0].transcript;
+    document.getElementById("voiceText").value = spoken;
+    document.getElementById("micStatus").textContent = "Text received: " + spoken;
+  };
+  recognition.onerror = event => {
+    document.getElementById("micStatus").textContent =
+      "Microphone error: " + event.error;
+  };
+  recognition.onend = () => {
+    if (document.getElementById("micStatus").textContent === "Listening...") {
+      document.getElementById("micStatus").textContent = "Finished";
+    }
+  };
+  recognition.start();
+}
 
- if(cameraRunning){
-
+window.addEventListener("beforeunload", () => {
   stopCamera();
-
-  await startCamera();
-
- }
-
-}
-
-
-/* =========================
-   HAND RECOGNITION
-========================= */
-
-function recognizeLandmarks(lm){
-
- let tips=[8,12,16,20];
-
- let pips=[6,10,14,18];
-
- let extended=0;
-
- tips.forEach((tip,i)=>{
-
-  if(lm[tip].y < lm[pips[i]].y){
-   extended++;
-  }
-
- });
-
- let word="Unknown";
- let conf=70;
-
-
- if(extended===4){
-
-  word="Hello";
-  conf=92;
-
- }
-
- else if(extended===0){
-
-  word="Yes";
-  conf=89;
-
- }
-
- else if(extended===2){
-
-  word="No";
-  conf=88;
-
- }
-
- else if(extended===1){
-
-  word="One";
-  conf=84;
-
- }
-
-
- document.getElementById("aiStatus")
- .textContent=
- word==="Unknown"
- ? "Detecting"
- : "Recognized ✓";
-
-
- setCameraResult(word,conf);
-
-}
-
-
-/* =========================
-   CAMERA RESULT
-========================= */
-
-function setCameraResult(word,conf){
-
- document.getElementById("cameraResult")
- .textContent=word;
-
- document.getElementById("cameraTamil")
- .textContent=
- gestureMap[word]?.ta || "சைகை";
-
-}
-
-
-/* =========================
-   VOICE OUTPUT
-========================= */
-
-function speak(text,lang){
-
- if(!("speechSynthesis" in window)){
-
-  alert("Voice output is not supported.");
-
-  return;
-
- }
-
- window.speechSynthesis.cancel();
-
- const u=
- new SpeechSynthesisUtterance(text);
-
- u.lang=
- lang==="ta"
- ? "ta-IN"
- : "en-IN";
-
- window.speechSynthesis.speak(u);
-
-}
-
-
-function speakDetected(){
-
- const lang=
- document.getElementById(
-  "cameraOutputLang"
- ).value;
-
- const word=
- document.getElementById(
-  "cameraResult"
- ).textContent;
-
- speak(
-  lang==="ta"
-  ? gestureMap[word]?.ta || word
-  : word,
-  lang
- );
-
-}
-
-
-let lastUploadWord="Hello";
-
-
-function speakUpload(){
-
- const lang=
- document.getElementById(
-  "uploadOutputLang"
- ).value;
-
- speak(
-  lang==="ta"
-  ? gestureMap[lastUploadWord]?.ta
-  : lastUploadWord,
-  lang
- );
-
-}
-
-
-/* =========================
-   VIDEO UPLOAD
-========================= */
-
-function loadVideo(e){
-
- const file=e.target.files[0];
-
- if(!file)return;
-
- const video=
- document.getElementById(
-  "uploadedVideo"
- );
-
- video.src=
- URL.createObjectURL(file);
-
- video.style.display="block";
-
- document.getElementById(
-  "analyseBtn"
- ).style.display="block";
-
-}
-
-
-async function analyseUploadedVideo(){
-
- document.getElementById("upHand")
- .textContent="Detected ✓";
-
- document.getElementById("upFace")
- .textContent="Detected ✓";
-
- document.getElementById("upBody")
- .textContent="Detected ✓";
-
- document.getElementById("upAI")
- .textContent="Recognized ✓";
-
-
- lastUploadWord="Hello";
-
- document.getElementById(
-  "uploadResult"
- ).textContent=lastUploadWord;
-
- document.getElementById(
-  "uploadTamil"
- ).textContent=
- gestureMap[lastUploadWord].ta;
-
- document.getElementById(
-  "uploadConfidence"
- ).textContent=
- "Confidence: 90%";
-
-}
-
-
-/* =================================================
-   IMPORTANT:
-   YOUR PNG FILES ARE IN SAME FOLDER AS index.html
-   ================================================= */
-
-const gestureMap={
-
- Hello:{
-  ta:"வணக்கம்",
-  file:"hello.png"
- },
-
- Thank:{
-  ta:"நன்றி",
-  file:"thank-you.png"
- },
-
- You:{
-  ta:"நீங்கள்",
-  file:"you.png"
- },
-
- Yes:{
-  ta:"ஆம்",
-  file:"yes.png"
- },
-
- No:{
-  ta:"இல்லை",
-  file:"no.png"
- },
-
- Stop:{
-  ta:"நிறுத்து",
-  file:"stop.png"
- },
-
- Please:{
-  ta:"தயவு செய்து",
-  file:"please.png"
- },
-
- Sorry:{
-  ta:"மன்னிக்கவும்",
-  file:"sorry.png"
- },
-
- Welcome:{
-  ta:"வரவேற்கிறோம்",
-  file:"welcome.png"
- },
-
- Good:{
-  ta:"நல்லது",
-  file:"good.png"
- },
-
- Bad:{
-  ta:"மோசம்",
-  file:"bad.png"
- },
-
- Boy:{
-  ta:"சிறுவன்",
-  file:"boy.png"
- },
-
- Girl:{
-  ta:"சிறுமி",
-  file:"girl.png"
- },
-
- Man:{
-  ta:"ஆண்",
-  file:"man.png"
- },
-
- Woman:{
-  ta:"பெண்",
-  file:"woman.png"
- },
-
- Mother:{
-  ta:"அம்மா",
-  file:"mother.png"
- },
-
- Father:{
-  ta:"அப்பா",
-  file:"father.png"
- },
-
- Brother:{
-  ta:"சகோதரன்",
-  file:"brother.png"
- },
-
- Sister:{
-  ta:"சகோதரி",
-  file:"sister.png"
- },
-
- Friend:{
-  ta:"நண்பர்",
-  file:"friend.png"
- },
-
- Love:{
-  ta:"அன்பு",
-  file:"love.png"
- },
-
- Help:{
-  ta:"உதவி",
-  file:"help.png"
- },
-
- Water:{
-  ta:"தண்ணீர்",
-  file:"water.png"
- },
-
- Food:{
-  ta:"உணவு",
-  file:"food.png"
- },
-
- Home:{
-  ta:"வீடு",
-  file:"home.png"
- },
-
- School:{
-  ta:"பள்ளி",
-  file:"school.png"
- },
-
- Come:{
-  ta:"வா",
-  file:"come.png"
- },
-
- Go:{
-  ta:"போ",
-  file:"go.png"
- },
-
- One:{
-  ta:"ஒன்று",
-  file:"one.png"
- },
-
- Two:{
-  ta:"இரண்டு",
-  file:"two.png"
- }
-
-};
-
-
-/* =========================
-   FIND GESTURE
-========================= */
-
-function findGesture(text){
-
- const s=
- text.toLowerCase();
-
- for(
-  const key of Object.keys(gestureMap)
- ){
-
-  if(
-   s.includes(
-    key.toLowerCase()
-   )
-  ){
-
-   return key;
-
-  }
-
- }
-
-
- const tamilMap={
-
-  "வணக்கம்":"Hello",
-  "நன்றி":"Thank",
-  "நீங்கள்":"You",
-  "ஆம்":"Yes",
-  "இல்லை":"No",
-  "நிறுத்து":"Stop",
-  "தயவு":"Please",
-  "மன்னிக்கவும்":"Sorry",
-  "நல்லது":"Good",
-  "மோசம்":"Bad",
-  "சிறுவன்":"Boy",
-  "சிறுமி":"Girl",
-  "அம்மா":"Mother",
-  "அப்பா":"Father",
-  "சகோதரன்":"Brother",
-  "சகோதரி":"Sister",
-  "நண்பர்":"Friend",
-  "அன்பு":"Love",
-  "உதவி":"Help",
-  "தண்ணீர்":"Water",
-  "உணவு":"Food",
-  "வீடு":"Home",
-  "பள்ளி":"School"
- };
-
-
- for(
-  const tamil in tamilMap
- ){
-
-  if(
-   s.includes(tamil)
-  ){
-
-   return tamilMap[tamil];
-
-  }
-
- }
-
-
- return null;
-
-}
-
-
-/* =========================
-   TEXT → SIGN
-========================= */
-
-let currentSignWord="";
-
-
-function convertTextToSign(){
-
- const text=
- document.getElementById(
-  "textInput"
- ).value.trim();
-
- if(!text){
-
-  document.getElementById(
-   "signWord"
-  ).textContent="Enter text";
-
-  document.getElementById(
-   "signTamil"
-  ).textContent=
-  "உரை உள்ளிடவும்";
-
-  document.getElementById(
-   "signImage"
-  ).style.display="none";
-
-  return;
-
- }
-
-
- const word=findGesture(text);
-
-
- if(!word){
-
-  document.getElementById(
-   "signWord"
-  ).textContent=
-  "Sign not found";
-
-  document.getElementById(
-   "signTamil"
-  ).textContent=
-  "உங்கள் 30 gesture words-ல் உள்ள வார்த்தையை உள்ளிடவும்";
-
-  document.getElementById(
-   "signImage"
-  ).style.display="none";
-
-  document.getElementById(
-   "imageError"
-  ).style.display="block";
-
-  document.getElementById(
-   "imageError"
-  ).textContent=
-  "இந்த வார்த்தைக்கான gesture image கிடைக்கவில்லை.";
-
-  return;
-
- }
-
-
- currentSignWord=word;
-
- refreshTextResult();
-
-}
-
-
-/* =========================
-   SHOW SIGN IMAGE
-========================= */
-
-function refreshTextResult(){
-
- if(!currentSignWord)return;
-
- const lang=
- document.getElementById(
-  "textOutputLang"
- ).value;
-
- const gesture=
- gestureMap[currentSignWord];
-
- document.getElementById(
-  "signWord"
- ).textContent=
- currentSignWord;
-
- document.getElementById(
-  "signTamil"
- ).textContent=
- gesture.ta;
-
-
- const img=
- document.getElementById(
-  "signImage"
- );
-
-
- const errorBox=
- document.getElementById(
-  "imageError"
- );
-
-
- /*
-   IMPORTANT:
-   Image is directly beside index.html
- */
-
- img.src="./"+gesture.file;
-
- img.style.display="block";
-
- errorBox.style.display="none";
-
-
- img.onload=function(){
-
-  img.style.display="block";
-
-  errorBox.style.display="none";
-
- };
-
-
- img.onerror=function(){
-
-  img.style.display="none";
-
-  errorBox.style.display="block";
-
-  errorBox.innerHTML=
-  "⚠️ <b>"+gesture.file+
-  "</b> file கிடைக்கவில்லை.<br>"+
-  "index.html இருக்கும் same folder-ல் இந்த image இருக்க வேண்டும்.";
-
- };
-
-}
-
-
-/* =========================
-   VOICE INPUT
-========================= */
-
-let recognition=null;
-
-
-function startVoice(){
-
- const SpeechRecognition=
- window.SpeechRecognition ||
- window.webkitSpeechRecognition;
-
-
- if(!SpeechRecognition){
-
-  document.getElementById(
-   "voiceStatus"
-  ).textContent=
-  "Speech recognition is not supported.";
-
-  return;
-
- }
-
-
- recognition=
- new SpeechRecognition();
-
-
- const selectedLanguage=
- document.getElementById(
-  "languageSelect"
- ).value;
-
-
- recognition.lang=
- selectedLanguage==="ta"
- ? "ta-IN"
- : "en-IN";
-
-
- recognition.interimResults=false;
-
- recognition.maxAlternatives=1;
-
-
- document.getElementById(
-  "voiceStatus"
- ).textContent=
- "Listening... 🎙";
-
-
- recognition.onresult=function(event){
-
-  const text=
-  event.results[0][0].transcript;
-
-  document.getElementById(
-   "textInput"
-  ).value=text;
-
-  document.getElementById(
-   "voiceStatus"
-  ).textContent=
-  "Voice received ✓";
-
-  convertTextToSign();
-
- };
-
-
- recognition.onerror=function(){
-
-  document.getElementById(
-   "voiceStatus"
-  ).textContent=
-  "Try again";
-
- };
-
-
- recognition.start();
-
-}
-
-
-/* =========================
-   START MEDIAPIPE
-========================= */
-
-setupMediaPipe();
-
+  if (videoObjectUrl) URL.revokeObjectURL(videoObjectUrl);
+});
 </script>
-
 </body>
 </html>
